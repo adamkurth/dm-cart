@@ -1,0 +1,157 @@
+\documentclass[12pt,letterpaper]{report} % Defines the class of the document, 12pt font size on letterpaper
+
+% Required packages
+\usepackage[hyphens]{url}               % break URLs at hyphens
+\usepackage[hidelinks,breaklinks]{hyperref}
+\Urlmuskip=0mu plus 2mu                 % make breaks more likely
+\def\UrlBreaks{\do\/\do-\do.\do:}       % allow breaks after / - . 
+\usepackage{natbib} % For bibliography management
+\usepackage{geometry} % For page layout configuration
+\usepackage{fancyhdr} % For fancy headers and footers
+\usepackage{asudis} % Specific package for ASU dissertations, assuming custom styling
+
+\setboolean{ShowTables}{true}   %  ← add
+\setboolean{ShowFigures}{true}  %  ← add
+\usepackage{pgffor} % For foreach loop
+\usepackage{tocloft} % For customizing the Table of Contents
+\usepackage{afterpage}
+\usepackage{dcolumn,array}
+\usepackage{mathptmx}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{xltabular}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{subcaption}  % For subfigures
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amsmath,amssymb,amsbsy}
+\hypersetup{hidelinks, colorlinks=false}
+\usepackage{cleveref}
+\usepackage{siunitx}
+\usepackage{caption}
+\usepackage{threeparttablex}
+\usepackage{fancyhdr}
+
+% Initial page style configuration
+\pagestyle{fancy}
+\fancyhf{} % Clearing header and footer
+\fancyhead[L]{} % Left header
+\fancyhead[R]{} % Right header
+\fancyfoot[C]{\thepage} % Center page number in footer
+
+\pagenumbering{gobble} % Suppress page numbering initially
+
+% ---------------- Copyright page macro ----------------
+\newcommand{\copyrightpage}{%
+  \thispagestyle{empty}%no header / footer
+  \vspace*{\fill}%push content to the bottom of the printable area
+  \begin{center}
+    ©2025 Adam Michael Kurth\\[0.5\baselineskip]% ← removed \large → same 12 pt font
+    All Rights Reserved
+  \end{center}
+  % one extra baseline keeps it comfortably above the 1-inch margin
+  \vspace*{\baselineskip}
+  \clearpage
+}
+
+
+\begin{document}
+
+% Front matter
+\include{cover}        % title page (unnumbered page i)
+\copyrightpage         % new page ii (unnumbered)
+\pagenumbering{roman}  % abstract now becomes roman i
+\doublespace
+\include{abstract}
+
+\ifthenelse{\boolean{ShowDedication}}{\dedicationpage{\\Enter content here.}}{} % Conditional dedication page
+\ifthenelse{\boolean{ShowAcknowledgments}}{\acknowledgementpage{\input{amkurth-Thesis/ack}}}{}  % Conditional acknowledgments page
+
+
+% -------- TABLE OF CONTENTS --------------------------------------
+\tableofcontents
+\addtocontents{toc}{~\hfill Page\par} % Adds "Page" aligned to the right above TOC entries
+\newpage
+% Custom page style setup for main content
+\fancypagestyle{customstyle}{
+  \fancyhf{} % Clears headers and footers
+  \fancyfoot[C]{\thepage} % Centers page numbers in footer
+  \renewcommand{\headrulewidth}{0pt} % Removes header line
+  \renewcommand{\footrulewidth}{0pt} % Removes footer line
+}
+\pagestyle{customstyle} % Applies the custom page style
+\pagestyle{plain} % Switches to plain page style for no headers and a simple page number
+
+
+% Conditional inclusions for lists and preface
+\ifthenelse{\boolean{ShowTables}}{
+    \newpage
+    \addcontentsline{toc}{part}{LIST OF TABLES}
+    \listoftables
+    \addtocontents{lot}{Table~\hfill Page\par}
+    \clearpage
+}{}
+
+\ifthenelse{\boolean{ShowFigures}}{
+    \newpage
+    \addcontentsline{toc}{part}{LIST OF FIGURES}
+    \listoffigures
+    \addtocontents{lof}{Figure~\hfill Page\par}
+    \clearpage
+}{}
+
+\ifthenelse{\boolean{ShowSymbols}}{
+    \newpage
+    \addcontentsline{toc}{part}{LIST OF SYMBOLS / NOMENCLATURE}
+    \symbolspage{}
+    \clearpage
+}{}
+
+\ifthenelse{\boolean{ShowPreface}}{
+    \newpage
+    \addcontentsline{toc}{part}{PREFACE}
+    \prefacepage{\\Enter content here.}
+    \clearpage
+}{}
+
+\ifnum\Chapters>0
+    % Add the CHAPTER X title to the TOC
+    \addtocontents{toc}{CHAPTER \par}
+    % Main content
+    \doublespace % Ensures double spacing for the main content
+    \pagenumbering{arabic} % Switches page numbering to Arabic numerals
+    \pagestyle{customstyle}  % <— activate body headers/footers here
+    \foreach \n in {1,...,\Chapters} {
+        \input{chapter\n/chapter\n} % Dynamically includes    
+        \input{chapter\n/tables/tables}
+        \input{chapter\n/figures/figures}
+    }
+\fi
+
+% Back matter
+{\singlespace % Single spacing for back matter
+\addcontentsline{toc}{part}{REFERENCES} % Adds REFERENCES to the TOC
+\bibliographystyle{asudis} % Bibliography style specific to ASU dissertations
+\bibliography{dis} % Includes the bibliography file
+}
+
+% Conditional appendix and biographical sketch inclusion
+\ifthenelse{\boolean{ShowAppendix}}{
+    \renewcommand{\chaptername}{APPENDIX}
+    \addtocontents{toc}{APPENDIX\par}
+    \appendix
+    \include{appendix1}
+}{}
+
+\ifthenelse{\boolean{ShowBiographical}}{
+    \newpage
+    \addcontentsline{toc}{part}{BIOGRAPHICAL SKETCH}
+    \biographicalpage{\\Enter content here.}
+    \clearpage
+}{}
+
+\end{document}

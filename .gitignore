@@ -1,5 +1,4 @@
-birthweight_data/natality2021us-original.csv
-birthweight_data/natality2022us-original-copy.csv
-birthweight_data/
-birthweight_data/**.RData
+data/natality202*us-original.csv
+data/
+data/**.RData
 usercode.pdf

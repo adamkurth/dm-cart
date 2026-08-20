@@ -1,0 +1,308 @@
+\chapter{Literature Review \& Methodology}
+\label{chap:chapter2-title}
+
+\section{Previous Work on Birth-Weight Modeling}
+\label{sec:ch2-previous-work}
+
+As previously mentioned, \citet{kramer1987}'s meta-analysis identified 43 LBW determinants then categorized them into genetic, nutritional, psychosocial, etc. and assessed their effects on birth weight and prematurity. Maternal profiles were separated based on income status, for high-income mothers, smoking status, poor maternal nutrition or low pre-pregnancy weight were the strongest LBW determinants whereas in low-income settings, maternal race origin, undernutrition, short stature, and malaria exposure were found to be the most important predictors \citep{kramer1987}. While for preterm births, smoking status and low pre-pregnancy weight are strong indicators \citep{kramer1987}.  \citet{kramer1987} concluded by stating that many potential contributors remain under studied, naming maternal work, prenatal care, and previous infections as some examples. This comprehensive seminal work highlights the complex and multifactorial nature of LBW, leaving open questions about interactions of factors and distributional outcomes, motivating a more flexible modeling procedure.
+
+The application of CART by \citet{KITSANTAS2006275} to 181,690 singleton births from Florida, led the identification of high-risk LBW mothers. Known risk factors of smoking status, gestation weight-gain, parity, etc. were used to grow separate decision trees by geographic region and compared against logistic regression \citep{KITSANTAS2006275}. The CART model revealed high-risk profiles for White and Hispanic mothers with low pregnancy weight gain, parity, and marital status defined high-risk stratification among non-smokers \citep{KITSANTAS2006275}. For instance, smoking mothers that gain less than 20 lbs are at significantly higher risk than mothers of larger weight-gain pregnancies, and Black mothers form a high-risk subpopulation in some regions regardless of other factors \citep{KITSANTAS2006275}. However, predictive accuracy was marginally better than logistic regression \citep{KITSANTAS2006275}, the recursive partitioning procedure conducted by CART uncovered some of the complex factor interaction in the LBW data. This study shows how the order of factors could be useful in disentangling strong interaction effects, suggesting room for improved or alternative methods. 
+
+\citet{dunson2008} (\citeyear{dunson2008}) used Bayesian semiparametric methods to link maternal pregnancy weight gain to birth-weight distributions. Using a Dirichlet-process mixture, they flexibly defined clusters of women by their weight-gain trajectories and jointly modeled birth-weight densities across clusters \citep{dunson2008}. This approach allowed the \emph{entire} birth-weight distribution to vary with weight-gain patterns, including distribution tails, while also capturing heterogeneity of how pregnancy factors influence birth-weight \citep{dunson2008}. Dunson et. al. demonstrated that modeling the full distribution in perinatal data is insightful — beyond mean estimates. However, advanced Bayesian models, latent clustering, and complex MCMC procedures lack interpretability and are computationally intensive, highlighting the need for model simplicity while retaining flexibility.
+
+More recently, \citet{rathjens2023} in \citeyear{rathjens2023} proposed a Bayesian distribution regression approach using copulas to jointly model birth weight and gestational age. Marginal distributions are assumed to follow a Gaussian for birth-weight outcomes, Dagum distribution for skewed gestational age, and the copula linked the two cumulative distribution functions (CDF) as functions of covariates \citep{rathjens2023}. The results of this study show non-linear effects of gestational age on weight and tail-dependent associations were captured by a Clayton copula \citep{rathjens2023}. The focus of bivariate outcomes here show how distribution modeling can extend traditional regression approaches. Beyond complex copula models, Bayesian methods enrich perinatal risk modeling. 
+
+In \citeyear{jain2024}, \citet{jain2024} proposed a scalable Bayesian density estimation method for nationally collected birth records. Inspired by kernel density methods, a Gaussian mixture is employed to model conditional distributions of birth weights given various predictors. Through advanced MCMC and targeted subsampling techniques, the model was able to capture complex patterns and estimate birth-weight densities at scale. Jain's work estimates the full distribution by density regression but underscores the computational and interpretational challenges.
+
+\section{Current Approach \& Contributions}
+\label{sec:ch2-current-approach}
+
+In this thesis, we adopt CART and Bayesian nonparametric methods to approximate birth-weight distributions. CART is a nonparametric algorithm proposed by \citet{breiman1984classification} and implemented in R by Therneau et al. \citep{intro_to_rpart}, called \textit{Recursive Partitioning and Regression Trees}, or \texttt{rpart}. The algorithm works in two stages: tree construction and tree pruning. 
+ 
+First, the tree is constructed. Given the data, \texttt{rpart} recursively partitions it into binary splits on the given predictor variables, creating nodes at each split. Though the splits need not be binary, this provides a clear and interpretable tree. CART employs a greedy approach to building decision trees \citep{cart_greedy}, where its goal is to maximize homogeneity or equivalently minimize heterogeneity in the data. At each node, CART evaluates all possible splits on candidate predictors and chooses the one that best "explains" the data by minimizing the node impurity, resulting in two child nodes with more homogeneous subgroups \citep{intro_to_rpart}. This process is applied recursively to each child node then growing a larger tree until the tree's max depth is reached or no further improvement is found \citep{intro_to_rpart}.
+
+Once fully grown, the tree typically overfits to the data, yielding large errors for small fluctuations. To address this, cross-validation is used to estimate prediction error for a sequence of pruned trees \citep{intro_to_rpart}. The tree is then "trimmed" back to the best cross-validation performance \citep{intro_to_rpart}, yielding the final tree that balances complexity and accuracy. For each terminal node (or "leaf") in the final tree, a sequence of if-then conditions categorize birth-weight outcomes based on maternal covariates.
+
+Interpretability is preserved by using CART to automatically uncover high- and low-risk groups for subpopulations of specific maternal and infant characteristics, much akin to \citet{KITSANTAS2006275}. Additionally, in line with \citet{dunson2008} and \citet{jain2024}, this tree-based method imposes no strict distributional assumptions on the birth-weight responses allowing for nonlinear interactions and heterogeneous effects to be captured naturally by CART. Our preprocessing procedure results in count data of various birth-weight categories, motivating the use of the \emph{marginal Dirichlet-Multinomial (DM) likelihood} as the Bayesian "evidence" and splitting criterion. The DM likelihood is chosen by producing posterior predictive distributions and interval estimation at each leaf whereas the Gini index measures only impurity. The impurity of a terminal node, is entirely dependent on the sample size by relying on empirical proportions \citep{stackexchangeGiniDecrease}. Additionally, the Gini index is known to suffer with data sparsity \citep{ekamperiDecisionTrees}. Compared to normal birth-weight (NBW) observations, we expect a large discrepancy between the total number of observed LBW and NBW counts.
+
+Birth-weight count observations can be safely assumed to follow a \emph{multinomial} distribution, and the Dirichlet prior smooths categories not observed. For use in CART, a split with high-DM likelihood translates as added improvement from parent to child nodes, reducing heterogeneity. The DM likelihood will be derived formally in Section~\ref{sec:ch2-likelihood} as a favorable splitting criterion for our application. 
+
+\section{Overview of the Birth-Weight Dataset}
+\label{sec:ch2-introduction}
+
+The primary dataset for this analysis is the 2021 Vitality Statistics Natality Birth Data \citep{nber_birth_data}. Collected by the National Center for Health Statistics (NCHS), this dataset contains a detailed record of birth outcomes and various maternal characteristics as part of the Vital Statistics Cooperative Program \citep{jain2024, nber_birth_data}. Standing as one of the most comprehensive datasets with over 3 million birth-weight records for maternal and infant health in the United States, collected annually across all states and District of Columbia since 1972 \citep{nber_birth_data}.
+
+For this analysis, variables in the 2021 data are broadly categorized into three domains: demographic, health, and geographic. Demographic features include date of birth, parental age and education, marital status, birth order, sex, and geographic location. Health features cover birth weight, gestational age, prenatal care adequacy, delivery attendants, and Apgar scores, while geographic indicators include state, county, and metropolitan  status \citep{nber_birth_data}. Note that Apgar scores are examinations based on newborn vitals five minutes following delivery, observing how newborns handle being outside the mother's womb \citep{apgar_score}.
+
+\section{Data Preprocessing \& Feature Engineering}
+\label{sec:ch2-preprocessing}
+
+The preprocessing procedure transforms the high-dimensional 2021 dataset into a workable and condensed dataset for computational efficiency, while preserving key information about predictors. Preprocessing involved (1) encoding all categorical and continuous variables into unique dichotomous predictors, (2) dimension reduction from 3 million rows to 128 unique predictor combinations, and (3) creating a consolidated counts dataset, primarily expanding the LBW region by creating birth-weight categories based on quantile cut points. From the dataset, seven key predictor variables and birth-weight outcomes (in kg) are retained for modeling. 
+
+\subsection{Binary Feature Encoding}
+\label{sec:ch2-feature-encoding}
+
+To enhance interpretability and computational efficiency, only seven predictors are selected based on clinical relevance, strong generalizability, and prior research support. The encoding procedure was inherited from \citet{jain2024}, and these predictors serve as an example of a small, yet representative set of predictors. Note that the encoding of \texttt{mrace15} is suggested by \citet{jain2024} and \citet{marchofdimes2024} as the primary dichotomy, \emph{though this choice is entirely arbitrary}. (NEED TO REVISIT)  According to \citeyear{census_usa} \citet{census_usa}, the national population is roughly 75.3\% White and 13.7\% Black, which provides demographic context for this binary split. All information of each feature representation and meaning is conveyed in the table below.
+
+\begin{table}[ht]
+\centering         % ensures horizontal centering
+\small             % or \footnotesize
+\caption[Binary Predictor Definitions Used in This Study]{Binary predictor definitions used in this study}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Label} & \textbf{Natality field} & \textbf{Value = 1} & \textbf{Value = 0} \\ \midrule
+Boy          & \texttt{sex}      & Infant is male (“M”)                     & Infant is female (“F”) \\
+Married      & \texttt{dmar}     & Mother is married                        & Mother not married     \\
+Black        & \texttt{mrace15}  & Black / African American                 & Any other race         \\
+Over33       & \texttt{mager}    & Maternal age $>$ 33 yr                   & Maternal age $\le$ 33 yr \\
+HighSchool   & \texttt{medu}     & High-school education completed          & Otherwise              \\
+FullPrenatal & \texttt{prenatal} & Adequate prenatal care                   & Inadequate / none      \\
+Smoker       & \texttt{cig\_0}   & Any prenatal smoking                     & No smoking             \\ \bottomrule
+\end{tabular}
+\end{table}
+
+This dichotomization of predictors is a common practice in epidemiology and public health research, as it simplifies the analysis and interpretation of results. However, as \(2^p\) grows exponentially with \(p\)-predictors, the number of unique combinations of predictors can become large, leading to lots of sparsity. 
+
+Additionally, the dichotomized age predictor is based on the 33-year cutoff, which is a common threshold in obstetric research to define advanced maternal age \citep{advanced_maternal_age}. The high-school education cutoff is based on the completion of secondary education, which is often used as a proxy for socioeconomic status and health literacy \citep{education_health_literacy}. The prenatal care adequacy variable is based on the Kessner index, which classifies prenatal care as adequate, intermediate, or inadequate based on the timing and number of visits \citep{kessner_index}. The smoking variable is based on self-reported smoking during pregnancy, which is a well-established risk factor for LBW \citep{smoking_lbw}.
+
+\subsection{Dimension Reduction}
+\label{sec:ch2-dimension-reduction}
+
+After the first step in preprocessing, the data is encoded as dichotomous indicator variables and one response category of total recorded birth-weight outcomes for the 3 million records. There are \(2^7 = 128\) possible combinations for the predictors, each representing a unique \emph{class} of maternal and infant characteristics. Aggregating observations by class greatly reduces the computational load while preserving interpretability and necessary information of features, enabling discernment of risk factors with minimal computational burden.
+
+\subsection{Converting Birth-Weight into Count Variables} 
+\label{sec:ch2-count-variables}
+
+The final step, transforms the dataset from 3.6 million by 237 to 128 by 11. We define a sequence of decline-quantile cut points based on 10\% quantile increments, to segment the LBW region (from 0-to-2.5 kg) creating 10 total LBW categories. By using the previous year's identical dataset from 2020 in segmenting these categories, we eliminate problems with "double-dipping" and bias in later estimates. This dimension reduction drastically consolidates the dataset while providing a straightforward way to retrieve the number of observations within a given class and birth-weight category. The specific cut-point values and their prior assignment are shown in Table~\ref{tab:birthweight_quantiles}.
+
+% insert table of quantile cut-points
+\begin{table}[htbp]
+\centering
+\caption[Birth-Weight Quantile Cut Points and Dirichlet Priors]{Birth-weight quantile cut points and Dirichlet priors}
+\label{tab:birthweight_quantiles}
+% siunitx is needed only for the S columns
+\begin{tabular}{@{}l c S[table-format=2.2] c S[table-format=2.2]@{}}
+\toprule
+& \multicolumn{2}{c}{\textbf{LBW + Normal}} &
+  \multicolumn{2}{c}{\textbf{LBW only}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+\textbf{Quantile} &
+  \textbf{Range (g)} & {\textbf{Prior (\%)}} &
+  \textbf{Range (g)} & {\textbf{Prior (\%)}} \\
+\midrule
+Q1     &  227--1170 & 0.84 &  227--1170 & 10 \\
+Q2     & 1170--1644 & 0.84 & 1170--1644 & 10 \\
+Q3     & 1644--1899 & 0.83 & 1644--1899 & 10 \\
+Q4     & 1899--2069 & 0.83 & 1899--2069 & 10 \\
+Q5     & 2069--2183 & 0.87 & 2069--2183 & 10 \\
+Q6     & 2183--2270 & 0.83 & 2183--2270 & 10 \\
+Q7     & 2270--2350 & 0.86 & 2270--2350 & 10 \\
+Q8     & 2350--2410 & 0.93 & 2350--2410 & 10 \\
+Q9     & 2410--2460 & 0.71 & 2410--2460 & 10 \\
+Q10    & 2460--2500 & 0.80 & 2460--2500 & 10 \\
+Normal & \textgreater{}2500 & 91.67 & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:birthweight_quantiles} the two types include: LBW and NBW, and the other restricted only to LBW, where NBW is defined as any newborn with greater than 2.5 kg at birth \citep{wiki:nbw}. Once the tree is fit, they are called the "full" and "LBW-only" models respectively. The NBW observations are aggregated into one column called \texttt{counts\_above\_2.5kg}, and will serve as the 11th birth-weight category in the consolidated counts dataset. When given to CART, it is of primary concern how the inclusion of this column changes the tree construction, variable selection, and stability of estimates. Additionally, the prior construction is heavily skewed in the full model, where the NBW column has probability of 91.67\%, while the LBW-only is a uniform 10\% prior probability across all 10 LBW categories by construction.
+
+In summary, this preprocessing consolidation yields 10 discretized quantile birth-weight categories used to allocate all observations into \emph{counts}. This provides a detailed gradations of the LBW region, and adding the aggregated NBW category provides the full range of birth-weight outcomes in the dataset. This approach prevents scarcity in any one category, and the data will be called \emph{counts data} from here forward.
+
+\section{Marginal Dirichlet-Multinomial (DM) Likelihood}
+\label{sec:ch2-likelihood}
+%Definition of log-likelihood in Bayesian models
+%How log-likelihood maximization improves density estimation
+%Comparison of Bayesian vs. frequentist approaches in LBW modeling
+\subsection{Introduction}
+\label{sec:ch2-likelihood-introduction}
+
+In the previous section, we established the discretized birth-weight categories for this study. Resulting in 10 LBW categories of quantile increments of 10\% and the aggregated 11th category for NBW. Modeling the distribution of birth-weight counts must require handling categorical partitions of all birth-weight categories, typically with small sample sizes in observed samples, thus \emph{zero-counts} in one or more categories. Relying on the standard maximum likelihood estimation (MLE) approach of observing raw proportion of observation counts, often results probability of zero assigned to some categories not observed in the sample. If we disregard this issue entirely, the MLE implicitly eliminates such categories that have not already been recorded so far, which is an unreasonable assumption for further inference. Thus, a smoothing technique is required to prevent such categories with zero-counts from being \emph{impossible} in future birth-weight observations, while still balancing small enough probabilities to reflect how rarely (or never) such events appear in the data, called \emph{overdispersion}. 
+
+One powerful and effective solution is through the Dirichlet-Multinomial (DM) model, which relies upon the Dirichlet-Multinomial conjugate pair, and interpretable via the Pólya urn scheme \citep{mimno_polya, gundersen2020dirichlet-multinomial, minka2000estimating}. The Dirichlet's overdispersion, effectively injects "pseudo-counts" or "zero-inflating" prior observations in all birth-weight categories \citep{mimno_polya, wiki:dirichlet-multinomial}. This ensured that the marginal likelihood, or evidence, for any category remains strictly positive, i.e. non-zero probability assignment for unobserved categories \citep{wiki:dirichlet-multinomial}. Here, \(\boldsymbol{\alpha} = (\alpha_1, \dots, \alpha_K)\) represent the Dirichlet hyperparameters, where each \(\alpha_k\) functions as a prior count for its respective category. In this section, we will discuss the notation of the natality dataset, formally derive the marginal DM likelihood criterion, and discuss how it is implemented in CART. By construction of the counts data, the actualized observations will follow a multinomial distribution, with a minor technicality in the standard form discussed in Section~\ref{sec:ch2-likelihood-adjustment}. 
+
+The DM likelihood is an appropriate choice for birth-weight modeling given count observations. The Bayesian splitting criterion gives the model flexibility, CART offers an interpretable algorithm for disentangling interactions, and modeling the full spectrum of birth weights gives the breadth for targeted LBW prediction and intervention. 
+
+\subsection{Data Format}
+\label{sec:ch2-data-format}
+
+Before deriving the marginal DM likelihood, it is best to describe the data format. We have \(K\in\{10,11\}\) birth-weight categories, varying between 10 and 11 depending on model scope. The predictor matrix is fixed at \(\mathbf{X} \in \{0,1\}^{I \times 7}\), where \(I=128\) is the number of total number of classes such that each \(i\), \(\mathbf{x}_i \in \{0,1\}^7\) represents a dummy-encoded predictor vector. The count data is the response matrix \(\mathbf{Y} := [n_{i,k}]_{i=1,\dots,I}^{k = 1,\dots,K}\) of dimensions \(I \times K\), where \(n_{i,k}\) is a number of birth observations for class \(i\), and quantile category \(k\). For class \(i=1,\dots,I\), each \(\mathbf{x}_i\) of \(\mathbf{X}\) is a 7-dimensional feature vector representing a unique maternal-infant combination of predictors. The corresponding observed counts are represented as \(\mathbf{y}_i =(n_{i,1}, \dots, n_{i,K}) \) in \(\mathbf{Y}\) with a length \(K\) birth-weight categories \(k = 1, \dots, K\). In other words, for each unique predictor class \((\mathbf{x}_i\), \(\mathbf{y}_i)\), tells us how many births fell into each category \(k\) with probability \(\boldsymbol{\theta}_i\). This setup is from the preprocessing steps described in Section~\ref{sec:ch2-preprocessing}, which dramatically consolidate the dataset into counts. The \(I\) total classes each \(\mathbf{x}_i, \mathbf{y}_i\) pair concisely represent all predictors and corresponding birth-weight response frequencies.
+
+To illustrate, if \(K=3\) and a particular predictor vector \(\mathbf{x}_i\) appears 10 times in the data, with outcomes of 6 in class 1, 3 in class 2, and 1 in class 3, then \(\mathbf{y}_i = (6,3,1)\) and \(N_i = 6 + 3 + 1 = 10\). We can apply the DM likelihood model for multivariate, multinomial counts data.
+
+\subsection{Treatment of the Multinomial Coefficient}
+\label{sec:ch2-likelihood-adjustment}
+
+Before deriving the marginal DM likelihood, we will clarify why the usual multinomial coefficient is omitted. After collapsing the dataset into \(I\)  classes, each class \(i\) is summarized by its counts vector \(\mathbf{y}_i = (n_{i,1}, \dots n_{i,K})\) with the total counts in class \(i\) represented as \(N_i = \sum_{k=1}^K n_{i,k}\). In the classic multinomial probability mass function, the factor 
+\begin{equation*}
+    \label{eq:multinomial-coef}
+    \mathrm{MultinomialCoeff}(n_{i,1}, \dots n_{i,K})
+  \;=\;
+        \binom{N_i}{n_{i,1}, \dots n_{i,K}}
+ \;=\; 
+        \frac{N_i!}{\prod_{k=1}^K n_{i,k}!}
+\end{equation*} 
+enumerates every possible permutations of \(N_i\) births inside of class \(i\). Because the information of the raw sequence of individual counts is \emph{not kept} by consolidating the dataset into counts data, we no longer model the possible orderings of \(N_i\) births. Because this coefficient is constant with respect to the category probability vector \(\boldsymbol{\theta}_i\) \citep{wiki:dirichlet-multinomial}, it plays no role in the likelihood-split comparisons and therefore is omitted from our criterion. Thus, we call it the \emph{adjusted} multinomial likelihood and denote it as \(\mathrm{Multinomial}^\ast\). This minor technicality is important to note, we only retain the proportional likelihood function since the multinomial coefficient does not depend on \(\boldsymbol{\theta}_i\).
+
+
+\subsection{Derivation}
+\label{sec:ch2-likelihood-derivation}
+
+The hierarchical model structure is as follows: 
+\begin{align*}
+    \mathbf{x}_i &=\text{ dummy-encoded predictor vector for class } i, \quad i = 1,\dots,128 \\
+    \mathbf{y}_i &\mid \boldsymbol{\theta}_i, \mathbf{x}_i \sim \mathrm{Multinomial}^\ast \left(N_i, \boldsymbol{\theta}_i\right)\\
+    \boldsymbol{\theta}_i  &\sim \mathrm{Dirichlet}\left(\boldsymbol{\alpha}= (\alpha_1, \dots, \alpha_K)\right) \quad  & \text{(prior)}\\
+    \boldsymbol{\theta}_i &\mid \mathbf{y}_i, \mathbf{x}_i \sim \mathrm{Dirichlet}\bigl(\boldsymbol{\alpha} + \mathbf{y}_i \bigr) \quad & \text{(posterior)}
+\end{align*}
+
+Where \(N_i = \sum_{k=1}^{K}n_{i,k}\) is the row total and \(\boldsymbol{\theta}_i = (\theta_{i,1},\dots,\theta_{i,K})\) is the true (but unknown) category probabilities for class \(i\). 
+
+From here forward, we will omit the index \(i\) from \(\mathbf{x}_i, \mathbf{y}_i,\boldsymbol{\theta}_i\) to avoid confusion. This changes to counts vector \((n_{i,1}, \dots, n_{i,K})\) to \((n_{1}, \dots, n_{K})\), where \(n_1\) is naturally interpreted as the first 10\% quantile. Likewise let \(\boldsymbol{\theta} = (\theta_1, \dots, \theta_K)\) be underlying Dirichlet prior, where \(\theta_k\) is the probability of an observation falling into category \(k\). The Dirichlet prior \(p(\boldsymbol{\theta})\) is given hyperparameters \(\boldsymbol{\alpha}\) where each \(\alpha_k > 0\) obtains the density:
+
+\[
+    p(\boldsymbol{\theta})
+    \;=\;
+   p(\boldsymbol{\theta} \mid \boldsymbol{\alpha})
+    \;=\;
+        \frac{1}{B(\boldsymbol{\alpha})} 
+    \prod_{k=1}^K \theta_k^{\alpha_k -1}
+    \;=\;
+    \frac{\Gamma(\sum_{k=1}^K \alpha_k)}{\Gamma(\alpha_0)} 
+    \prod_{k=1}^K \theta_k^{\alpha_k -1}
+\]
+
+for \(\theta_k \ge 0\), and \(\sum_k \theta_k = 1\). Here, \(B(\boldsymbol{\alpha})\) is the multivariate Beta function, serving as the normalizing constant. \(B(\boldsymbol{\alpha}) = \frac{\prod_{k=1}^K \Gamma(\alpha_k)}{\Gamma(\alpha_0)}\), with \(\alpha_0 = \sum_{k=1}^K \alpha_k\) for brevity. The Dirichlet component encodes our prior belief about the probabilities of \(\theta_k\) acting as "prior-counts" of category \(k\) \citep{wiki:dirichlet-multinomial}. Given \(\boldsymbol{\theta}\), the probability of observing a specific count outcome follows the adjusted multinomial likelihood. This is the likelihood of the category \(k\) for a given \(\theta_k\).
+
+\[
+    p(\mathbf{y} \mid \boldsymbol{\theta}, \mathbf{x}) 
+    \;=\;
+   \underbrace{\frac{N!}{\prod_{k=1}^K n_k}}_{\text{omit}} \prod_{k=1}^K \theta_k^{n_k} 
+    \;=\; 
+    \prod_{k=1}^K \theta_k^{n_k} 
+\]
+Under this structure, the joint density of the data and latent probability vector is the product of the Dirichlet prior and adjusted multinomial likelihood. Substituting both components yields:
+\begin{align*}
+    p(\mathbf{y}, \boldsymbol{\theta} \mid \mathbf{x}) 
+    \;&=\; 
+    p(\mathbf{y} \mid \boldsymbol{\theta}, \mathbf{x}) p(\boldsymbol{\theta}) \\
+    \;&=\;
+    \underbrace{
+    \prod_{k=1}^K \theta_k^{n_k}}_{\text{Multinomial}^\ast p(\mathbf{y} \mid \boldsymbol{\theta}, \mathbf{x})} 
+    \underbrace{
+    \frac{1}{B(\boldsymbol{\alpha})} 
+    \prod_{k=1}^K \theta_k^{\alpha_k -1}
+    }_{\text{Dirichlet prior } p(\boldsymbol{\theta})}\\
+    \;&=\;
+    \frac{\Gamma(\alpha_0)}{\prod_{k=1}^K \Gamma(\alpha_k)} 
+    \prod_{k=1}^K \theta_k^{(n_k + \alpha_k) - 1}\\
+    &\varpropto \bigl( \theta_1^{(n_1+\alpha_1)-1},\ldots, \theta_K^{(n_K+\alpha_K)-1} \bigr) \sim \mathrm{Dirichlet} \bigl(\boldsymbol{\alpha}+\mathbf{y}\bigr) \quad \text{(posterior)}
+\end{align*}
+
+Here we see the Dirichlet prior's effect is to "shift" of exponent in \(\theta_k^{n_k}\) by \(\alpha_k-1\), adding \(\alpha_k\) to \(n_k\) in the exponent \citep{mimno_polya}. To achieve the goal of the marginal likelihood, we integrate over all possible \(\boldsymbol{\theta}\) of the joint density.
+
+\begin{equation}
+    \label{eq:closed-form}
+    \begin{aligned}[b]
+        p(\mathbf{y} \mid \boldsymbol{\alpha}, \mathbf{x}) 
+    \;&=\;
+        \int_{\boldsymbol{\theta}} p(\mathbf{y}, \boldsymbol{\theta} \mid \mathbf{x})
+        p(\boldsymbol{\theta})
+        d\boldsymbol{\theta}\\
+    \;&=\;
+        \int_{\boldsymbol{\theta}} 
+        \left( \prod_{k=1}^K \theta_k^{n_k}\right)
+        \frac{\Gamma(\alpha_0)}{\prod_{k=1}^K \Gamma(\alpha_k)} \prod_{k=1}^K \theta_k^{\alpha_k-1} d\boldsymbol{\theta}\\
+    \;&=\;
+        \frac{\Gamma(\alpha_0)}{\prod_{k=1}^K \Gamma(\alpha_k)} 
+        \int_{\boldsymbol{\theta}} \prod_{k=1}^K \theta_k^{(n_k + \alpha_k) -1} d\boldsymbol{\theta}\\
+    \end{aligned}   
+\end{equation}
+
+The constant \(\frac{\Gamma(\alpha_0)}{\prod_{k=1}^K \Gamma(\alpha_k)}\) can be pulled outside of the integral since these do not depend on \(\boldsymbol{\theta}\). The integral in the final line is recognizable as the normalization integral of a Dirichlet distribution, the Beta function with parameters \((\alpha_1 + n_1, \alpha_2 + n_2, \dots, \alpha_K + n_K)\) can simplify this line. Define \(m_k = \alpha_k + n_k\)
+
+\begin{align*}
+        \int_{\boldsymbol{\theta}} \prod_{k=1}^K \theta_k^{m_k - 1} d\boldsymbol{\theta}
+    \;&=\;
+        B(\mathbf{m})\\
+    \;&=\;
+        \frac{\prod_{k=1}^K \Gamma(m_k)}{\Gamma(\sum_{i=1}^K m_k)}\\
+    \;&=\;
+        \frac{\prod_{k=1}^K \Gamma(n_k + \alpha_k)}{\Gamma(\sum_{i=1}^K n_k + \alpha_k )} \\
+    \;&=\;
+        \frac{\prod_{k=1}^K \Gamma(n_k + \alpha_k)}{\Gamma(N + \alpha_0)} 
+\end{align*}
+
+where \(N = \sum_{k=1}^K n_k\). Now substitute the last line back into Equation~\ref{eq:closed-form} to achieve the final closed-form marginal DM likelihood \citep{wiki:dirichlet-multinomial}:
+
+\begin{equation}
+    \begin{aligned}
+    \label{eq:dm-likelihood}
+    p(\mathbf{y} \mid  \boldsymbol{\alpha}, \mathbf{x}) 
+    \;&=\;
+    \frac{1}{B(\boldsymbol{\alpha})}B(\boldsymbol{\alpha} + \mathbf{y}) \\
+    \;&=\;
+    \frac{\Gamma(\alpha_0)}{\prod_{k=1}^K \Gamma(\alpha_k)}
+    \frac{\prod_{k=1}^K \Gamma(n_k + \alpha_k)}{\Gamma(N + \alpha_0)} \\
+    \;&=\;
+    \frac{\Gamma(\alpha_0)}{\Gamma(N + \alpha_0)}
+    \prod_{k=1}^K  \frac{\Gamma(n_k + \alpha_k)}{\Gamma(\alpha_k)}
+    \end{aligned}
+\end{equation}
+
+Taking the log transform yields the equivalent form which we directly implement Equation~\ref{eq:dm-log-likelihood} in the objective function criterion in \texttt{rpart}: 
+
+The derivation above gives the marginal likelihood contribution of a single class \(i\). Because the category probabilities \(\boldsymbol{\theta}_i\) are independent across classes given \(\boldsymbol{\alpha}\), the full marginal likelihood over all \(I=128\) classes factorizes as a product of per-class terms:
+\begin{equation}
+    \begin{aligned}
+    \label{eq:dm-log-likelihood}
+    \log p(\mathbf{y}\mid \boldsymbol{\alpha}, \mathbf{x})
+    \;&=\;
+    \log \Gamma(\alpha_0)
+    \;-\;
+    \log \Gamma(N + \alpha_0)\\
+    \;&+\;
+    \sum_{k=1}^K \Bigl(\log \Gamma(n_k + \alpha_k) \;-\; \log \Gamma(\alpha_k)
+    \Bigr)
+    \end{aligned}
+\end{equation}
+The derivation above gives the marginal likelihood contribution of a single class \(i\). Because the category probabilities \(\boldsymbol{\theta}_i\) are independent across classes given \(\boldsymbol{\alpha}\), the full marginal likelihood over all \(I=128\) classes factorizes as a product of per-class terms:
+\begin{equation}
+    \label{eq:dm-joint-likelihood}
+    p(\mathbf{Y} \mid \boldsymbol{\alpha}, \mathbf{X}) = \prod_{i=1}^{I} p(\mathbf{y}_i \mid \boldsymbol{\alpha}, \mathbf{x}_i),
+\end{equation}
+or equivalently, on the log scale, a sum over classes of Equation~\ref{eq:dm-log-likelihood}. This factorization is what makes the DM criterion practical inside \texttt{rpart}'s recursive splitting: at any node, the algorithm only needs to sum the log-likelihood over the classes currently routed to that node, rather than recomputing across all 128 classes at every candidate split. As the tree grows deeper and nodes contain fewer classes, each likelihood evaluation gets correspondingly cheaper, which is what keeps the greedy recursive-partitioning search tractable at scale.
+
+Equation~\ref{eq:dm-likelihood} above can be recognized as the DM distribution, sometimes called the Compound Multinomial or Pólya's urn distribution \citep{mimno_polya}. This can be broken down component-wise to give an intuitive understanding. For a given class \(i\): \( \frac{\Gamma(n_k + \alpha_k)}{\Gamma(\alpha_k)}\) shows observing \(n_k\) instances of category \(k\) updates the prior count \(\alpha_k\), the ratio \(\frac{\Gamma(\alpha_0)}{\Gamma(N + \alpha_0)}\) ensures that all the probabilities for categories sum to 1, yielding the normalization factor across joint observation counts \citep{gundersen2020dirichlet-multinomial, wiki:dirichlet-multinomial}. If \(n_k = 0\) for some category \(k\), its term in the product is \(\frac{\Gamma(0 + \alpha_k)}{\Gamma(\alpha_k)} = 1\), not zero. So an unobserved category contributes a neutral factor to the likelihood rather than a zero factor (which is what the raw MLE would produce). This is the smoothing effect of the Dirichlet prior, which guarantees that \(p(\mathbf{y} \mid \boldsymbol{\alpha}) > 0\) for all possible outcomes \citep{mimno_polya}. 
+% Also, when implementing this objective function into \texttt{rpart}, at any node, CART algorithm is greedy and only needs to take the sum of the log-likelihood across all 128 classes. That is, \(\log p(\mathbf{Y} \mid \boldsymbol{\alpha}, \mathbf{X}) = \sum_{i=1}^{I} \log p(\mathbf{y}_i \mid \boldsymbol{\alpha}, \mathbf{x}_i)\). This makes the greedy recursive splitting tractable and efficient. (REVISE)
+
+
+\subsection{Splitting with DM Likelihood in CART}
+\label{sec:ch3-splits-in-cart}
+Equation~\ref{eq:dm-log-likelihood} is the final log marginal DM likelihood that will be implemented in CART. Now we can understand how CART uses this criterion for evaluating possible splits of the data. 
+
+A successful decision tree will try to rid as much variation, or impurity, within a subgroup as it can, by proposing and evaluating splits on the predictors. For any dichotomous predictor under consideration, CART proposes a left and right split on this predictor and chooses the split that better explains the data. The split that is chosen is the one with the highest likelihood, indicating a better model fit. Maximizing the improvement gain is equivalent to minimizing the node impurity.
+
+Using the adjusted marginal log-likelihood as our impurity measure, denote \(\mathcal{L}_{\text{node}}\) for the likelihood for a node's data. Let a parent node count observations, \(\mathbf{y}_{\text{parent}}\) be split into  \(\mathbf{y}_{\text{left}},\mathbf{y}_{\text{right}}\)  we calculate first: \( 
+    \mathcal{L}_{\text{parent}} = \log p(\mathbf{y}_{\text{parent}} \mid \boldsymbol{\alpha}, \mathbf{x})
+\) then, 
+\(
+    \mathcal{L}_{\text{left}} = \log p(\mathbf{y}_{\text{left}} \mid \boldsymbol{\alpha},\mathbf{x})
+\)
+and 
+\(
+    \mathcal{L}_{\text{right}} = \log p(\mathbf{y}_{\text{right}} \mid \boldsymbol{\alpha},\mathbf{x})
+\) and calculate the improvement gain of the split as: 
+\[
+    \Delta \mathcal{L} = \mathcal{L}_{\text{left}} + \mathcal{L}_{\text{right}} - \mathcal{L}_{\text{parent}}
+\]
+
+Essentially, if \(\Delta\mathcal{L}\) is positive, the split results in an \emph{improvement} where the DM criterion favors the split with more homogeneity. If the multinomial coefficient was included then for any partition, \(\mathcal{L}\) would directly reward partitions with the larger number of possible orderings of the data. As noted in Section~\ref{sec:ch2-likelihood-adjustment}, \(N\) would be "better" than the two smaller groups of size \(N_1\) and \(N_2\), irrespective of how the counts are distributed. The omission of the coefficient makes the adjusted log-likelihood evaluate splits solely on how they reflect the distributional fit. 
+
+Suppose a parent node contains classes combined with total of 20 births across \(K=2\) categories (say, LBW vs. NBW), with \(\alpha = (1,1)\). If the observed counts are perfectly even, \(y_\text{parent} = (10,10)\), and the candidate split results in \(y_\text{left} = (5,5)\), \(y_\text{right} = (5,5)\)— no improvement is made, since the split preserves the same 50/50 mixture in both children. Contrast this with a split where \(y_\text{left} = (10,0)\) and \(y_\text{right} = (0,10)\), the split results in two pure nodes, and the improvement gain is maximized. This is the intuitive goal of CART: to split on predictors that improve subclassification of the population.
+
+
+% To illustrate how CART evaluates \(\Delta\mathcal{L}\), consider the scenario where a parent node with \(N\) observations is evenly split (50/50) between two nodes, with a symmetric prior \(\alpha_1 = \alpha_2\). Now we evaluate some predictor to split on. The marginal likelihood of both child nodes might not exceed that of the parent since its split evenly thus no split is chosen. Conversely, if there's a predictor where one node gets all LBW observations, and the other all NBW, the combined likelihood of child nodes would be much higher than the parent. This would cause a large \(\Delta\mathcal{L}\) and be a significant split for CART. This matches our intuitive goal of wanting to split on improved subclassification of the population.
+
+\input{amkurth-Thesis/chapter2/figures/figures}
+\input{amkurth-Thesis/chapter2/tables/tables}

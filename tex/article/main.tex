@@ -1,0 +1,441 @@
+% Template for the Journal of Computational Science and Applications (JCSA)
+% Published by the University of Lahore -- ISSN 2710-3102
+% Official author guidelines: https://journals.uol.edu.pk/JCSA/Author-Guideline
+\documentclass[twoside,twocolumn,10pt]{article}
+% \usepackage{lipsum}  % For sample/placeholder text
+\usepackage{fancyhdr}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{abstract}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{titlesec}
+\usepackage{ragged2e}  % Provides the justifying command
+\usepackage{amssymb}  % For additional symbols
+\usepackage{parskip}  % Automatically handles paragraph spacing
+\usepackage{amsmath}  % For advanced math environments
+\usepackage{newtxtext}  % Times New Roman font
+\usepackage{booktabs}  % For improved table appearance
+\usepackage{array}     % For customizing table columns
+
+% Packages carried over from tex/thesis/dis.tex so thesis content
+% (tables, figures, math) ports over without needing rewrites
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+\urlstyle{same}  % newtxtext has no T1 typewriter font; bare \url{} in the bibliography produced missing/invisible characters
+\renewcommand{\ttdefault}{lmtt}  % newtx has no working T1 typewriter font in this install; use Latin Modern Typewriter instead
+\usepackage{float}           % [H] figure/table placement
+\usepackage{subfig}          % \subfloat
+\usepackage{subcaption}      % subfigures
+\usepackage{multirow}        % multi-row table cells
+\usepackage{siunitx}         % S-column number alignment
+\usepackage{dcolumn}         % decimal-aligned columns
+\usepackage{tabularx}        % flexible-width tables
+\usepackage{xltabular}       % long flexible-width tables
+\usepackage{threeparttablex} % tables with notes
+\usepackage{cleveref}        % \cref / \Cref referencing
+\usepackage[numbers]{natbib} % author-year mode: \citet -> Kramer (1987), \citep -> (Kramer, 1987)
+
+% The starting page number is normally assigned by the editorial office
+% once the article is scheduled into a specific issue. Authors can leave
+% this at 1; production will update it if required.
+\setcounter{page}{1}
+
+% Define custom column types for better alignment and spacing
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}} % Left aligned column
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}   % Center aligned column
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}  % Right aligned column
+
+\usepackage[font=footnotesize, labelfont=bf, justification=raggedright, format=plain]{caption}
+
+\captionsetup[table]{
+    labelsep=period,               % Period after label for tables
+    justification=raggedright      % Ensure left alignment of captions
+}
+
+\captionsetup[figure]{
+    labelsep=period,               % Period after label for figures
+    justification=raggedright      % Ensure left alignment of captions
+}
+
+% Citations: natbib + dis.bib (author-year style, same source as tex/thesis/dis.tex)
+\bibliographystyle{plainnat}
+
+% Set page margins
+\geometry{
+    a4paper,
+    left=0.8in,
+    right=0.8in,
+    top=1in,
+    bottom=1in
+}
+
+% Increase space between columns
+\setlength{\columnsep}{15pt}
+
+% Define the centred abstract heading
+\renewcommand{\abstractname}{\hspace{1.3em}\textbf{Abstract}}
+
+\titleformat{\section}{\large\bfseries\uppercase}{\thesection.}{1em}{}
+
+\titleformat{\subsection}{\normalfont\bfseries\flushleft}{\thesubsection.}{1em}{}
+
+\titleformat{\subsubsection}{\normalfont\bfseries\itshape\flushleft}{\thesubsubsection}{1em}{}
+
+% Set font sizes for abstract
+\renewcommand{\abstractnamefont}{\normalfont\fontsize{14}{20}\bfseries}
+\renewcommand{\absnamepos}{flushleft}
+\renewcommand{\abstracttextfont}{\normalfont\fontsize{11}{13}\selectfont}
+
+% Keywords environment
+\newcommand{\keywordsname}{Keywords}
+\newenvironment{keywords}
+  {\par\noindent\hspace{2em}\textbf{\keywordsname:}}
+  {\par}
+
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\sloppy
+
+% Set up header and footer styles
+\pagestyle{fancy}
+\fancyhf{}  % Clear default header and footer
+
+% Odd page headers -- replace with a short running form of your title
+\fancyhead[C]{\small Running Title of the Paper}
+
+% Even page headers -- replace with the first author's surname and year
+\fancyhead[CE]{\small Author Surname et al. (Year)}
+
+% Footer: Page numbers only (on all pages except the first one)
+\fancyfoot[C]{\thepage}
+
+% First page custom header/footer
+\fancypagestyle{firstpage}{
+  \fancyhf{}  % Clear header and footer
+  \fancyhead[LO]{\small Volume X, Issue Y, Year}  % Left header for first page
+  \fancyhead[RO]{\small JOURNAL NAME}  % Right header for first page
+  \fancyfoot[L]{\footnotesize Received: Month Year; Revised: Month Year; Accepted: Month Year\\
+    \textsuperscript{*}Corresponding Author: Adam M. Kurth \textless adam\_kurth@brown.edu\textgreater}
+   \fancyfoot[R]{\footnotesize \copyright\ Year by the Author(s). Published by JCSA,\\\textsuperscript{*} under the CC-BY license }
+  \renewcommand{\headrulewidth}{0.4pt}  % Add header line
+  \renewcommand{\footrulewidth}{0.4pt}  % Add footer line
+}
+
+\title{\fontsize{16}{20}\selectfont\textbf{Investigating Determinants of Birth Weight Using Bayesian Tree-Based Nonparametric Modeling}}
+\author{
+    \fontsize{12}{14}\selectfont
+    Adam M. Kurth\textsuperscript{1*}, P. Richard Hahn\textsuperscript{2}\\[1ex]
+    \fontsize{12}{14}\selectfont
+    \textsuperscript{1}Department of Biostatistics, Brown University, Providence, RI, USA \\
+   \textsuperscript{2}School of Mathematical \& Statistical Sciences, Arizona State University, Tempe, AZ, USA
+}
+\date{August 19, 2026}
+
+\begin{document}
+
+\twocolumn[
+\begin{@twocolumnfalse}
+% Change "Research Article" to the appropriate article type if needed
+% (e.g. Review Article, Short Communication).
+\vspace{-0.5cm}  % Adjust spacing as needed between header and "Research Article"
+\raggedright
+
+{\fontsize{11}{13}\selectfont{Research Article}}
+\vspace{-0.8cm}  % Adjust spacing between "Research Article" and title
+
+% Now, insert the title and the author information
+\maketitle
+
+\thispagestyle{firstpage} % Apply custom header/footer for first page
+\begin{abstract}
+\fontsize{11}{13}\selectfont
+\vspace{1em}
+\justifying
+% \textit{[Replace this paragraph with your abstract. The abstract should be a single, self-contained paragraph of approximately 150--250 words summarizing the purpose of the study, the methodology used, the principal results, and the main conclusions. Avoid citations, footnotes, and undefined abbreviations in the abstract.]}
+
+Low birth weight (LBW), a birth weight below 2.5~kg, is a leading antecedent of neonatal mortality, developmental delays, and chronic diseases in later life. Conventional analyses dichotomize birth weight at the 2.5~kg threshold, discarding all information about severity below it, while conventional tree methods return a partition with no measure of uncertainty. We develop a Bayesian, tree-based framework that models the full birth-weight distribution and quantifies risk at the level of an individual covariate profile. Recursive partitioning is driven by the marginal Dirichlet-Multinomial likelihood, whose conjugacy allows a closed form splitting criterion and stabilizes sparse cells rather than tolerating them. The 2024 U.S. Natality dataset is condensed into 672 maternal-infant classes, and birth weight is discretized into deciles of the \emph{previous} year's LBW distribution, so cutpoints and prior are estimated on data disjoint from the counts being modeled. Two models are grown: a full model over all births (\(K=11\)) and a LBW-only model restricted to births below the threshold (\(K=10\)). A two-tier parametric bootstrap propagates class- and category-level sampling variation through a 10,000-tree ensemble. Because the criterion is a likelihood rather than an impurity measure, the framework supports categorical predictions at a resolution that plain multinomial CART cannot sustain; maternal race enters as a seven-level factor rather than a binary indicator, its optimal grouping recovered by exhaustive search over all bipartitions of its levels. Posterior risk profiles are read off the ensemble with 95\% percentile intervals, and span roughly fivefold between extreme profiles. The full model primarily uncovers socioeconomic determinants of LBW, while the LBW-only model reveals finer biologically-driven risk factors. The framework is implemented in the R package \texttt{rpart}.
+\vspace{-0.1cm}
+\noindent\textbf{keywords}
+% Keyword one, Keyword two, Keyword three, Keyword four.
+Risk stratification, low birth weight, Bayesian nonparametrics, classification and regression trees, Dirichlet-Multinomial likelihood 
+
+\end{abstract}
+
+\vspace{1cm}
+\end{@twocolumnfalse}
+]
+\section{Introduction}
+\fontsize{12}{14}\selectfont
+% \textit{[Replace this section with your Introduction. Provide sufficient background to place the work in context, state the problem being addressed, and summarize the objectives and contributions of the study. The example paragraph below shows the default paragraph style, justification, and hyphenation settings used throughout the template.]}
+Low birth weight (LBW), defined as a birth weight less than 2.5~kg \citep{lbw_def, kramer1987}. Infants born underweight face substantially elevated risk for neonatal mortality, developmental delays, and chronic illness later in life \citep{finch2003}, and the determinants of that risk broadly fit into: genetic, biological, environmental, and socioeconomic categories. Identifying which combinations of materal and infant characteristics carry the greatest risk is therefore a prerequisite for target prevention.  
+
+Two limitations recur in the existing literature. First, birth weight is usually reduced into a binary indicator at 2.5~kg, which treats 1.0~kg birth and 2.4~kg birth as equivalent events and discards precisely the gradient that clincal severity follows. Second, methods that are interpretable enough to guide policy and practice —— decision trees in particular —— typically resport to a single fitted partition with no quantification of how stable that partition is, while methods that do quanitify this uncertaity tend to sacrifice the interpretable nature that practitioners rely on. 
+
+We address both limitations by pairing recursive partitioning with a Dirichlet-Multinomial (DM) likelihood. Retaining the full discretized birth-weight distribution as a vector-valued outcome response preserves severity, and placing a conjugate Dirichlet prior on the category probabilities yields a marginal likelihood in a closed form, which serves directly as the splitting criterion. The same conjugacy that makes the criterion tractable also shrinks the sparse cells towards the marginal profile, so the method does not merely tolerate thin subgroups but is designed for them. This matters practically: it permits a categorical risk factor to be disaggregated to a resolution that a plain multinomial CART cannot support, and it allows a risk profile (a complete covariate combination) to be read off the fitted ensemble with the uncertainty quantification attached. 
+
+
+\section{Literature Review}
+\fontsize{12}{14}\selectfont
+% \textit{[Replace this section with a review of the relevant prior literature, positioning your contribution relative to existing work.]}
+
+A landmark meta-analysis by \citet{kramer1987} catalogued the determinants of LBW, among them maternal anthropometry, inadequate gestational weight gain, cigarette smoking, malaria infection, and a prior adverse pregnancy outcomes. The factors it identified are strongly interrelated, which makes their marginal effects difficult to separate and motivates methods that model interactions rather than adjusting for them. 
+
+Tree-based methods answer that need. \citet{KITSANTAS2006275} applied CART to LBW and demonstrated its value for isolating high-risk profiles in high-dimensional settings, where the fitted partition is itself the interpretable output. However, that application inhereited both limitations noted above: the response was a binary indicator, so serverity below 2.5~kg was discarded, and the reported tree carried no uncertainty. 
+
+A parallel line of work models the full birth-weight distribution conditional on covariates, using Bayesian nonparametric mixture models \citep{dunson2008} and copula-based or density regression techniques \citep{rathjens2023}. These recover detailed distributional effects but return a fitted density rather than a rule, and are therefore harder to translate into subgroup statements for practitioners and policymakers. Our contribution sits between these traditions: the response is distributional, but the estimator is a tree. 
+
+The covariates themselves are well-established in the literature. Risk is elevated at younger and older maternal ages, with lower educational attainment, and with limited access to prenatal care \citep{age_differences_lbw, finch2003, jain2024}, and further elevated by environmental exposures such as tobacco use, substance exposure, and air pollution \citep{standford_med_lbw, lu2020combined}. Incidence differs sharply across demographic groups: in the United States the LBW rate among Black infants roughly doubles that of White infants, at 14.7\% to 7.1\% \citep{marchofdimes2024}. It is common to encode race as a single binary contrast on this basis. We do not, for reasons the method makes affordable and Section~\ref{sec:data} details.
+
+
+\section{Data}
+\label{sec:data}
+\fontsize{12}{12}\selectfont
+% \textit{[Replace this section with a description of your data sources and methodology.]}
+% overview of dataset 
+\paragraph{Source and predictors.}
+The analysis uses the 2024 U.S. Natality dataset, collected by the National Center for Health Statistics (NCHS), comprising over 3.64 million live-birth records; after complete-case filtering, 3.48 million records (95.6\%) remain. Seven maternal and infant predictors were selected for clincial relevance, generalizability, and support in prior literature (Table~\ref{table:vars}), spanning demographic, socioeconomic, and biological domains. Their joint level set defines 
+\[
+    I = \underbrace{2^5}_{\text{five binary}} \times 
+        \underbrace{3}_{\text{marital status}} \times
+        \underbrace{7}_{\text{maternal race}} 
+        = 672
+\]
+mutually exclusive classes, each a distinct maternal-infant profile. Condensing the 3.48 million records into these 672 rows of counts is what makes an ensemble of 10,000 trees computationally feasible while preserving the full distributional response.
+
+\paragraph{Two predictors are not binary, by design.}
+Marital status is reported as unknown for a non-negligible 21\% and geographically clustered share of the records. Because the public-file suppressed every geographic identifier, the mechanism generating that missingness is unobservable and no conditional imputation is testable. We therefore retain those records and carry \emph{unknown} as an explicit third level, which assumes nothing and lets the fittted model report where the unknown group belongs. Maternal race is carried at its full seven-level resolution rather than collapsing into a binary contrast or to an ``other'' category that would merge groups with different risk profiles. Both choices enlarge the class space, and both are affordable only because the DM prior stabilizes the sparse cells that result—a point made in Section~\ref{sec:methods}.
+
+
+\paragraph{Birth-weight categories.}
+Birth weight is discretized into \(K\) ordered categories. The ten LBW categories are the deciles of the birth weight distribution below 2.5~kg, with cutpoints estimated from the \emph{preceding} year (2023); all births above 2.5~kg form a single normal birth weight (NBW) category. Estimating cutpoints and prior on 2023 while modeling counts on 2024 ensures the two are disjoint and avoids any data leakage. Year-to-year proportions are expected to be stable enough for the previous year to be informative: in 2023, 8.7\% of births were LBW. The full model retains all births (\(K=11\)); the LBW-only model restricts to births below the threshold (\(K=10\)), where the ten categories are conditional on being LBW. Figure~\ref{fig:prior} shows the resulting prior mass for both models.
+ 
+
+% data format
+\paragraph{Notation.}
+Let \(\mathbf{X}\in\prod_{j=1}^{7}\mathcal{L}_j\) be the fixed \(I \times 7\) predictor matrix, where  \(|\mathcal{L}_j|=(2,3,2,2,2,2,7)\), whose \(i\)th row \(\mathbf{x}_i\) is one class profile. Let \(\mathbf{Y} = [n_{i,k}]_{i=1,\dots,I}^{k=1,\dots,K}\) be the corresponding \(I \times K\) response matrix, so \(\mathbf{y}_i = (n_{i,1}, n_{i,2}, \dots, n_{i,K})\) collects teh total births of class \(i\) across categories \(k=1,\dots,K\), and \(N_i = \sum_{k=1}^{K} n_{i,k}\) is its total. Each pair \(\mathbf{x}_i, \mathbf{y}_i\) thus records how many births of a given profile fell into each birth-weight category, governed by an unknown probability vector \(\boldsymbol{\theta}_i = (\theta_{i,1}, \dots, \theta_{i,K})\).
+
+
+% =============================================================================
+\section{Methodology}
+\label{sec:methods}
+\fontsize{12}{14}\selectfont
+
+\subsection{The Dirichlet-multinomial model}
+Within a class, category counts are multinomial given \(\boldsymbol{\theta}_i\) and a conjugate Dirichlet prior is placed on \(\boldsymbol{\theta}_i\):
+\begin{align*}
+\mathbf{y}_i \mid \mathbf{x}_i
+   &\sim \text{Multinomial}^{\ast}(N_i,\boldsymbol{\theta}_i)\\
+\boldsymbol{\theta}_i &\sim \mathrm{Dir}(\boldsymbol{\alpha})\\
+\boldsymbol{\theta}_i \mid \mathbf{y}_i,\mathbf{x}_i
+   &\sim \mathrm{Dir}(\boldsymbol{\alpha}+\mathbf{y}_i).
+\end{align*}
+The astrisk denotes the omission of the multinomial coefficient: it does not depend on the parameters of interest and retaining it would bias the spliting criterion towards classes with larger total counts. The hyperparameter \(\boldsymbol{\alpha} = (\alpha_1, \dots, \alpha_K)\), with total mass \(\alpha_0 = \sum_{k=1}^{K} \alpha_k\), is set from the previous year's category proportions, which gives an informative, non-degenerate prior for categories that may be empty in any given class. We suppress the class index \(i\) below; the derivation is identical for each class profile.
+
+Writing the Dirichlet density and outcome model,
+\begin{align*}
+  p(\boldsymbol{\theta}\mid\boldsymbol{\alpha})
+    &= \frac{\Gamma(\alpha_0)}{\prod_{k}\Gamma(\alpha_k)}
+       \prod_{k=1}^{K}\theta_k^{\alpha_k-1},\\
+    p(\mathbf{y}\mid\boldsymbol{\theta}, \mathbf{x})
+      &\propto \prod_{k=1}^{K}\theta_k^{n_k}
+\end{align*}
+their product is Dirichlet in \(\boldsymbol{\theta}\) which exhibits conjugacy directly:
+\begin{align*}
+  p(\mathbf{y},\boldsymbol{\theta}\mid\mathbf{x})
+    &\propto \prod_{k=1}^{K}\theta_k^{\,n_k+\alpha_k-1}
+     \sim \mathrm{Dir}(\boldsymbol{\alpha}+\mathbf{y}).
+\end{align*}
+Integrating out \(\boldsymbol{\theta}\) gives the marginal likelihood in closed form,
+\begin{align*}
+  p(\mathbf{y}\mid\mathbf{x})
+    &= \int p(\mathbf{y},\boldsymbol{\theta}\mid\mathbf{x})\,
+       d\boldsymbol{\theta}\\
+     &= \frac{\Gamma(\alpha_0)}{\Gamma(N+\alpha_0)}
+       \prod_{k=1}^{K}\frac{\Gamma(n_k+\alpha_k)}{\Gamma(\alpha_k)}
+\end{align*}
+and hence, on the log scale,
+\begin{equation}
+\label{eq:loglik}
+\begin{split}
+  \ell(\mathbf{y}\mid\mathbf{x})
+    ={}& \log\Gamma(\alpha_0)-\log\Gamma(N+\alpha_0)\\
+       &+\sum_{k=1}^{K}\bigl[\log\Gamma(n_k+\alpha_k)-\log\Gamma(\alpha_k)\bigr].
+\end{split}
+\end{equation}
+Because the \(\boldsymbol{\theta}_i\) are independent across classes given \(\boldsymbol{\alpha}\), the full marginal likelihood factorizes as:
+\[
+  p(\mathbf{Y}\mid\boldsymbol{\alpha},\mathbf{X})
+    = \prod_{i=1}^{I}p(\mathbf{y}_i\mid\boldsymbol{\alpha},\mathbf{x}_i),
+\]
+so on the log scale it is a sum of terms of the form~\eqref{eq:loglik}. This factorization is what makes the criterion practical inside a recursive partitioning algorithm: evaluating a candidate split requires summing~\eqref{eq:loglik} over the two classes routed to the node in question, never over all \(I\).
+
+
+
+\subsection{Growing the tree}
+Trees are grown with the CART algorithm \citep{breiman1984}, implemented through a custom split rule in the R package \texttt{rpart} \citep{rpart_docs}. A candidate split of node \(t\) into children \(t_L\) and \(t_R\) is scored by the gain in marginal log-likelihood:
+\[\Delta\ell = \ell(t_L) + \ell(t_R) - \ell(t)\]
+with \(\ell(\cdot)\) the sum of~\eqref{eq:loglik} over the classes routed to that node. The split maximizing \(\Delta\ell\) is taken and the process recurses until a minimum node size is reached, negligible gain is achieved, or a stopping criterion is met. The tree is then pruned to the subtree which maximizes the cross-validated log-likelihood on a held-out validation set. Replacing an impurity measure with a likelihood is what carries the prior into the splitting decision. A candidate split that isolates a small number of births is not rewarded for the spurious extreme category proportions it produces, because those proportions are shrunk towards \(\boldsymbol{\alpha}\) before being scored. 
+
+
+\subsection{Categorical splits}
+A \(k\)-level unordered predictor admits \(2^{k-1}-1\) possible bipartitions of its levels, but the unconventional strategy only evaluates the \(k-1\) splits that are contiguous in some fixed ordering of those levels. For binary predictors, that distinction is vacuous—one split either way—which is why it is rarely raised. For maternal race at seven levels it is not: a contiguous search examines \(6\) of the \(63\) available groupings, and which six depends on nothing more than the order in which the level is declared. We therefore evaluate all \(2^{k-1}-1\) bipartitions under the same \(\Delta\ell\) criterion and select the maximizer. At the level counts in play the cost in neglibible, and without the seven-group encoding of race would be nominal rather than real.
+
+
+\subsection{Uncertainty via a two-tier parametric bootstrap}
+
+Uncertainty is propagated through an ensemble of \(B=10,000\) trees. Each replicate is generated in two tiers, matching the two ways the observed counts table are subject to sampling variation. The first tier redraws how the \(T\) total births are distributed across the \(I\) classes, \(\mathbf{n}^\ast \sim \text{Multinomial}(T, \mathbf{p})\) with \(p_i\) the observed share of class \(i\); the second redraws from each class, how its \(n_i^\ast\) births distribute across the categories, using the posterior mean
+\[
+    \hat{\pi}_{i,k} = \frac{n_{i,k} + \alpha_k}{N_i + \alpha_0}
+\]
+held fixed across replicates. A tree is fitted to each resampled counts table, and every quantity is reported below: category probabilities, aggregate LBW risk, variable importance, these are all summarized over the ensemble by its mean and its 95\% percentile interval. 
+
+
+
+\section{Results and Discussion}
+
+% \textit{[Replace this section with your results and discussion. The example figures and table below demonstrate the recommended formatting for graphical and tabular content in this template.]}
+
+% Figure~\ref{fig:prior} and Figure~\ref{fig:example-two} illustrate how single-column-width figures are placed and captioned within the two-column layout. Table~\ref{tab:example-table} illustrates the recommended table style.
+
+
+
+
+
+% ---- PRIOR -- single column ------------------------------------------------
+% The figure carries no title or subtitle; both are in the caption, which is
+% what lets it work at \columnwidth.
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=\columnwidth]{../../results/2023-2024/article/informed_prior_2023.pdf}
+  \caption[Informed Dirichlet priors from 2023 quantiles]{%
+    \textbf{Informed Dirichlet prior hyperparameters.} Bar labels give each
+    category's share of the total prior mass and the legend gives each
+    category's birth-weight interval in kg, both derived from the 2023
+    LBW distribution. The full model (top) places 91.3\% of its
+    prior mass on the NBW category, so the ten LBW deciles are
+    compressed on a linear axis and are read from their labels; the LBW-only
+    model (bottom) has no NBW category, hence the empty slot. Panels use
+    independent $y$ scales.}
+  \label{fig:prior}
+\end{figure}
+
+
+% ---- FITTED TREES -- now half a page ---------------------------------------
+\begin{figure*}[tb]
+  \centering
+  \includegraphics[width=\textwidth]{../../results/2023-2024/article/model_trees_2024.pdf}
+  \caption[Fitted DM-CART trees for both model arms]{%
+    Fitted DM-CART trees for the 2024 cohort: the full model above, the LBW-only
+    model below. Node labels give the split variable. Blue labels give the levels
+    sent to the left child at a multi-level split, the right child being the
+    complement. Binary splits are unlabelled: the left branch is always the
+    reference level ($0$) and the right branch the indicator level ($1$) of
+    Table~\ref{tab:vars}. Where a label would overlap the tree it is drawn clear
+    of it and joined to its branch by a dotted leader. Terminal nodes give the
+    posterior
+    risk of the classes routed there --- $P(\mathrm{LBW})$ for the full model and
+    $P(Q_1\!-\!Q_3 \mid \mathrm{LBW})$ for the LBW-only model, in which every
+    category is by construction an LBW category, so the two panels are on
+    different scales. Both trees select maternal race at the root.}
+  \label{fig:model-trees}
+\end{figure*}
+
+
+% ---- TREE GROWTH BY DEPTH ---------------------------------------------------
+\begin{figure*}[tb]
+  \centering
+  \includegraphics[width=\textwidth]{../../results/2023-2024/article/depth_growth_full_2024.pdf}
+  \caption[Tree growth by maximum depth]{%
+    Structure of the full model at maximum depths 2--5, showing which predictors
+    enter as the tree is allowed to grow: three at depth~2, five at depth~3, and
+    six from depth~4 onward. Maternal education never enters at any depth.
+    Terminal-node values are omitted at this scale and are reported in
+    Table~\ref{tab:depth}. Node labels are abbreviated: \texttt{marr} marital
+    status, \texttt{age} maternal age $>33$, \texttt{educ} high school completed,
+    \texttt{care} first-trimester prenatal care, \texttt{smoke} any pre-pregnancy
+    smoking.}
+  \label{fig:depth-growth}
+\end{figure*}
+
+
+% ---- CATEGORY PROBABILITIES FOR THE EXTREME CLASSES -------------------------
+% NOTE: this is the figure that shows the actual probabilities with error bars.
+\begin{figure*}[tb]
+  \centering
+  \includegraphics[width=0.94\textwidth]{../../results/2023-2024/article/risk_category_profiles_2024.pdf}
+  \caption[Category probabilities for the extreme-risk classes]{%
+    Posterior probability of each low-birth-weight decile for the highest- and
+    lowest-risk class of each model arm, with 95\% percentile bootstrap intervals
+    from the 10{,}000-tree ensemble. The normal-birth-weight category is excluded
+    so the shape within the LBW region is visible; panels use independent $y$
+    scales. In the LBW-only model the highest-risk class concentrates mass in the
+    smallest deciles while the lowest-risk class shifts toward the largest,
+    a severity gradient the binary LBW indicator cannot express.}
+  \label{fig:risk-profile}
+\end{figure*}
+
+
+% ---- RISK LANDSCAPE -- single column, stacked -------------------------------
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=\columnwidth]{../../results/2023-2024/article/risk_profile_ranking_2024.pdf}
+  \caption[Posterior risk across all classes]{%
+    Posterior risk for all 672 maternal-infant classes, the full model above and
+    the LBW-only model below, ordered by risk with 95\% percentile bootstrap
+    intervals. Filled points are classes meeting the support threshold of
+    1{,}000 observed births (191 of 672 in the full model, 65 in the LBW-only
+    model); hollow grey points fall below it and are excluded from the ranking,
+    but are shown so the extent of the filter is visible. Red and blue mark the
+    highest- and lowest-risk class in each arm. Note the two arms use different
+    risk scores and therefore different $y$ scales.}
+  \label{fig:risk-landscape}
+\end{figure}
+
+
+
+
+
+% predictor definitions
+\begin{table}[H]
+\caption{Predictor definitions. Five predictors are binary; marital status and
+maternal race are multi-level, giving $2^{5}\cdot3\cdot7=672$ classes.}
+\label{tab:vars}
+\centering
+\small
+\begin{tabular}{@{}llp{5.0cm}@{}}
+\toprule
+\textbf{Field} & \textbf{Levels} & \textbf{Definition} \\ \midrule
+\texttt{sex}        & 2 & Male; female \\
+\texttt{mager}      & 2 & Maternal age $>33$~yr; $\le 33$~yr \\
+\texttt{meduc}      & 2 & High school completed or beyond; otherwise \\
+\texttt{precare1st} & 2 & Prenatal care began in the first trimester; otherwise \\
+\texttt{cig\_0}     & 2 & Any pre-pregnancy smoking; none \\
+\texttt{dmar}       & 3 & Married; unmarried; unknown \\
+\texttt{race}       & 7 & White, Black, Hispanic, Asian, AIAN, NHOPI, multiracial \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+
+
+\section{Conclusion and Future Work}
+
+\textit{[Replace this section with your conclusions, summarizing the key findings and their implications, and outlining directions for future work.]}
+
+\section{Declaration}
+\fontsize{11}{13}\selectfont
+
+\textbf{Conflict of Interest: } [State any conflicts of interest, or declare that the authors have none.]
+
+\textbf{Author Contribution:}
+[Describe each author's contribution, e.g., using CRediT taxonomy roles such as conceptualization, methodology, data collection, analysis, writing, and supervision.]
+
+% Example for references section
+
+\bibliography{references}
+
+\end{document}

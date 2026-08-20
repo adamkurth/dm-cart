@@ -1,24 +1,11 @@
-# nus-thesis-latex-template
+We've used this for about a half-dozen Ph. D. dissertations. The current files pass the format requirements 
+in spring 2013.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+Please contribute your own corrections. By sharing this we are making things easier for all students using 
+LaTeX for the dissertations at ASU.
 
-An up-to-date LaTeX template for thesis at National University of Singapore (NUS).
+To see an example of a dissertation formatted using these LaTeX style files, 
+click [here](http://www.public.asu.edu/~jelynn/dis.pdf).
 
-The template conforms to the latest National University of Singapore's (NUS) stylesheet as documented in [*General Guidelines on Format of Research Thesis Submitted For Examination*](./nus-guidelines.pdf).
+Feel free to email john.shumwayjr@gmail.com if you are a graduating ASU student with LaTeX questions.
 
-## Organization
-
-The template is organized as follows:
-
-```tex
-├── main.tex # Main file
-├── frontmatter/ # Title page, declaration, acknowledgements, and summary
-├── chapters/ # Thesis chapters
-├── references/ # References
-├── appendices/ # Appendices
-```
-
-## Requirements
-
-- A LaTeX distribution (e.g., MiKTeX)
-- A LaTeX editor (e.g., VS Code with LaTeX Workshop)

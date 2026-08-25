@@ -1,15 +1,3 @@
-# util.R
-# Centralized path/config resolution for the DM-CART pipeline.
-# Source this at the top of data.R, quantile.R, and dm-cart.R instead of
-# each script defining its own paths (previously inconsistent -- data.R
-# used a relative "birthweight_data/" root that doesn't exist in the
-# current repo layout, while dm-cart.R and quantile.R hardcoded absolute
-# paths under the old "conformal-lbw-prediction" project name).
-#
-# Usage:
-#   source(file.path(rprojroot::find_root(rprojroot::is_git_root), "util.R"))
-#   paths <- get_paths(year = 2024, with.2.5kg = TRUE)
-#   natalitydata <- read.csv(paths$raw.csv())
 library(rprojroot)
 
 # ---- Path resolver ----
@@ -57,22 +45,6 @@ get_paths <- function(year, prior.year = NULL, with.2.5kg = TRUE) {
         target.year <- year
     }
 
-    # ---- REVISION 2026-08 (R1): cohort resolution was silently broken --------
-    # Previously this function computed `target.year` above and then returned
-    # `year = year` (the REQUESTED year), discarding `target.year` entirely.
-    # Every caller does `TARGET.YEAR <- paths$year`, so with the default
-    # PRIOR.YEAR = 2023 the "target" year resolved to 2023 as well -- i.e. the
-    # quantile cutpoints and the Dirichlet prior were built from the SAME file
-    # as the counts they are applied to. That destroys the no-double-dipping
-    # design the methodology claims, and the 2024 data was never read at all.
-    #
-    # `cohort` was likewise computed (`cohort.dir`) and never returned, so the
-    # `sprintf("... %s ...", paths$cohort)` banners in all three scripts
-    # silently printed nothing -- which is why this went unnoticed.
-    #
-    # `year` is kept as an alias for `target.year` so existing accessor
-    # defaults (`yr = year`) keep meaning "the year being modeled".
-    # -------------------------------------------------------------------------
     if (prior.year >= target.year) {
         stop(sprintf(paste0("Cohort resolution failed: prior.year (%d) must be strictly ",
                             "earlier than target.year (%d). The prior/cutpoints must come ",
@@ -92,11 +64,8 @@ get_paths <- function(year, prior.year = NULL, with.2.5kg = TRUE) {
     model.dir   <- if (with.2.5kg) "fullmodel" else "lbwmodel"
     results.dir <- file.path(results.root, cohort.dir, model.dir)
     plots.dir   <- file.path(results.dir, "plots")
-    # REVISION R29: figures destined for the manuscript go in ONE cohort-level
-    # folder, not scattered through each model arm's plots/. `plots` stays the
-    # diagnostic dump; `article` holds only what is meant to be published, so
-    # copying figures into tex/article/figures/ is a single directory copy and
-    # there is no chance of a diagnostic being picked up by \includegraphics.
+    
+    # `article` holds only what is meant to be published, so it is always the same path regardless of model type.
     article.dir <- file.path(results.root, cohort.dir, "article")
 
     list(
@@ -107,7 +76,7 @@ get_paths <- function(year, prior.year = NULL, with.2.5kg = TRUE) {
     plots      = plots.dir,
     article    = article.dir,
 
-    # REVISION R1: these four fields are the fix. `year` used to be the
+    # these four fields are the fix. `year` used to be the
     # requested year; it is now the resolved TARGET year (the year whose births
     # are modeled). `requested.year` preserves whatever the caller passed in.
     year           = target.year,
@@ -118,21 +87,7 @@ get_paths <- function(year, prior.year = NULL, with.2.5kg = TRUE) {
 
     with.2.5kg = with.2.5kg,
 
-    # ---- File accessors ----
-    # Most default to `year`, which since REVISION R1 is the TARGET year --
-    # the year whose births are being modeled. The two that belong to the
-    # prior instead -- quantile.cutpoints / informed.prior -- take yr as a
-    # REQUIRED argument instead of guessing, since silently defaulting to the
-    # wrong one of {target.year, prior.year} would load/save the wrong file
-    # with no error.
-    #
-    # Correct usage, for the 2023-2024 cohort:
-    #   raw.csv(prior.year)            -> natality2023  (prior: cutpoints + alphavec ONLY)
-    #   raw.csv(target.year)           -> natality2024  (target: the analysis cohort)
-    #   quantile.cutpoints(prior.year) -> built from 2023
-    #   informed.prior(prior.year)     -> built from 2023
-    #   rebin.data(target.year)        -> 2024 counts, binned on the 2023 cutpoints
-    #   bootstrap.results(target.year) -> 2024 results
+    # is the TARGET year
     raw.csv             = function(yr = target.year) file.path(data.root, sprintf("natality%dus-original.csv", yr)),
     quantile.cutpoints  = function(yr)         file.path(data.rebin, sprintf("quantile_cutpoints_%d.RData", yr)),
     informed.prior      = function(yr)         file.path(data.rebin, sprintf("informed_prior_%d.RData", yr)),
@@ -150,8 +105,6 @@ get_paths <- function(year, prior.year = NULL, with.2.5kg = TRUE) {
 
 # ---- Directory bootstrapping ----
 # Creates any missing output directories (results/, results/plots/, etc.)
-# so a brand-new year doesn't fail partway through a run on a missing
-# folder rather than a missing file.
 ensure_dirs <- function(paths) {
   dirs <- c(paths$data.rebin, paths$results, paths$plots, paths$article)
   for (d in dirs) {
@@ -162,22 +115,6 @@ ensure_dirs <- function(paths) {
   }
 }
 
-# ---- Raw-data existence check ----
-# Confirms both the analysis year AND its prior year's raw natality CSV
-# are present before any downstream script starts processing. Run this
-# once after switching years, before touching data.R.
-check_raw_data <- function(paths) {
-  needed  <- c(paths$raw.csv(paths$year), paths$raw.csv(paths$prior.year))
-  missing <- needed[!file.exists(needed)]
-  if (length(missing) > 0) {
-    cat("Missing raw natality files -- download these before proceeding:\n")
-    cat(paste(" -", missing), sep = "\n")
-  } else {
-    cat("All required raw natality files found for year", paths$year,
-        "(and prior year", paths$prior.year, ").\n")
-  }
-  invisible(missing)
-}
 # ==========================================================================
 # Tree rendering
 # ==========================================================================
@@ -194,7 +131,7 @@ dm.tree.coords <- function(fit, branch = 0.30) {
 
 # Draws into the CURRENT device 
 # `highlight` is a vector of node ids; when supplied, branches on those
-# paths are drawn bold and coloured and everything else is dimmed.
+# paths are drawn bold and colored and everything else is dimmed.
 draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
                          lbw.cols = 1:10, alphavec, cex = NULL,
                          branch = 0.30, highlight = NULL,
@@ -216,10 +153,7 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
   leaf.detail   <- match.arg(leaf.detail)
   branch.labels <- match.arg(branch.labels)
   # `var.labels` is an optional named vector of SHORT display names for the
-  # split variables (e.g. precare1st -> "care"). In a small-multiples panel the
-  # binding constraint stops being leaf text and becomes the width of the
-  # variable name at each internal node; abbreviating buys far more room than
-  # shrinking the type does.
+  # split variables (e.g. precare1st -> "care")
   var.name <- function(v) {
     v <- as.character(v)
     if (is.null(var.labels)) v else ifelse(v %in% names(var.labels), var.labels[v], v)
@@ -234,14 +168,6 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
   lab <- labels(fit, pretty = 0, collapse = FALSE)   # [,1] left  [,2] right
 
   # ------- wrap long level-set labels.
-  # With 7 race groups a branch label can read
-  # "White,Hispanic,Asian,AIAN,NHOPI,Multiracial" -- wide enough to run into
-  # neighbouring subtrees. Breaking every two levels onto a new line keeps
-  # the full membership visible (it must be: that IS the split) while
-  # roughly halving the horizontal footprint.
-  # R33: one level per line once a set reaches three members. Two per line
-  # still left "White,Hispanic," wide enough to run into the neighbouring node
-  # label; width is the binding constraint here, not height.
   wrap.levels <- function(z, per.line = 1) {
     vapply(z, function(one) {
       parts <- strsplit(one, ",", fixed = TRUE)[[1]]
@@ -253,16 +179,9 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
   lab[, 1] <- wrap.levels(lab[, 1])
   lab[, 2] <- wrap.levels(lab[, 2])
   births <- rowSums(frame$yval2)
-
-  # margins trimmed to the title strip only, so the tree fills the
-  # canvas and the type reads larger relative to the figure on the page.
   par(mar = c(0.3, 0.3, if (is.null(title)) 1.6 else 4.0, 0.3), xpd = NA)
 
   # ---- how large can the type actually be? -------------------------------
-  # Measured from the real geometry rather than from a leaf-count formula.
-  # An rpart tree is not balanced, so leaves are NOT evenly spaced: what
-  # binds is the SMALLEST horizontal gap between neighbouring leaves, which
-  # a "canvas width / n.leaves" estimate badly overstates on a deep tree.
   padx <- 0.055 * diff(range(xy$x))
   xlim <- range(xy$x) + c(-padx, padx)
   plot.new()
@@ -271,14 +190,6 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
   leaf.x  <- sort(xy$x[is.leaf])
   min.gap <- if (n.leaves > 1) min(diff(leaf.x)) else diff(xlim)
 
-  # ------- leaf labels are ALWAYS rotated 90 degrees.
-  # Previously rotation only kicked in above 14 leaves. Reading it
-  # bottom-to-top is uniform across every figure in the thesis (no figure
-  # needs the page turned and none needs zooming), and it is also the
-  # cheaper constraint: rotated, what has to fit in the gap between
-  # neighbouring leaves is LINE HEIGHT (4 stacked lines) rather than string
-  # width (~9 characters), which is several times less demanding. That is
-  # what lets the type stay large on the dense trees.
   rotate  <- TRUE
   stagger <- FALSE
 
@@ -287,51 +198,28 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
   gap.in    <- min.gap * in.per.ux
 
   if (is.null(cex)) {
-    # 4 stacked lines of rotated text must fit across the smallest leaf gap.
-    # The 1.15 cap is deliberately lower than before: at 1.35 the compact
-    # trees (depth 2-3) came out oversized for the page.
     line.in <- 1.30 * par("ps") / 72
     char.in <- 0.60 * par("ps") / 72
     if (leaf.detail == "none") {
-      # No leaf text: the tightest thing on the page is the node label, which
-      # is horizontal. Size from the longest variable name against the same
-      # smallest-gap measurement.
+      # No leaf text: the tightest thing on the page is the node label
       max.chr <- max(nchar(var.name(frame$var[!is.leaf])), 3L)
       cex <- min(cex.max, max(0.45, gap.in / (max.chr * char.in)))
     } else if (leaf.detail == "compact") {
-      # REVISION R30: the compact label is a single short number ("0.179"), so
-      # it is drawn HORIZONTALLY -- rotation buys nothing once the four-line
-      # label is gone, and horizontal numbers are far easier to read.
-      #
-      # Horizontal, the constraint becomes string WIDTH against the leaf gap,
-      # which is much tighter than line height: at 23 leaves across a page it
-      # caps the type at about 7 pt. Staggering alternate labels onto a second
-      # row doubles the room, so the type can be roughly twice the size it
-      # could be in a single row. That is what makes "horizontal AND bigger"
-      # possible rather than a trade-off.
-      cex <- min(cex.max, max(0.45, (2 * gap.in) / (6.0 * char.in)))
+      # the compact label is a single short number ("0.179") horizontally
+      cex <- min(cex.max, max(0.42, (2 * gap.in) / (8.5 * char.in)))
     } else {
       cex <- min(cex.max, max(0.42, gap.in / (4.3 * line.in)))
     }
   }
 
   # ---- vertical room for the leaf labels ---------------------------------
-  # Solve for pady: the label block is a fixed number of INCHES, but ylim is
-  # what we are choosing, so pady appears on both sides. With plot height
-  # pin[2] fixed, pady = h * (base + top) / (pin[2] - h).
-  # Rotated labels are ~9 characters TALL, plus the leader line above them.
   y.gap    <- diff(range(xy$y)) / max(depth.max, 1)
-  # ---- REVISION R30: per-element sizing ---------------------------------
-  # A single global cex is set by the worst-crowded spot in the tree, which
-  # drags every well-spaced label down with it. Instead each label is sized
-  # against its OWN local gap and only shrinks if it would actually overflow,
-  # so the crowded siblings at one node no longer shrink the whole figure.
   char.in.1 <- 0.60 * par("ps") / 72     # width of one character at cex = 1
   in.per.x  <- pin[1] / diff(xlim)
   depth.of  <- floor(log2(node.id))
 
   local.gap <- function(idx, step = 1) {
-    # distance to the nearest same-depth neighbour `step` positions away
+    # distance to the nearest same-depth neighbor `step` positions away
     vapply(idx, function(i) {
       sib <- idx[depth.of[idx] == depth.of[i]]
       xs  <- sort(xy$x[sib])
@@ -351,12 +239,6 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
     w <- nchar(var.name(frame$var[int.idx])) * char.in.1
     node.cex[int.idx] <- pmin(cex * 1.05, pmax(0.50, 0.92 * g / w))
   }
-  # REVISION R33: stagger across up to THREE rows, not always two.
-  # Two rows give each label 2x the leaf gap; where the tree is dense that is
-  # still not enough and the labels had to shrink. Choosing the row count from
-  # the measured gap lets the crowded clusters spread over three rows and keep
-  # the type large -- which is what "longer and more readable" buys: the extra
-  # vertical space is spent on horizontal separation.
   stagger.rows <- 1L
   if (leaf.detail == "compact" && length(leaf.idx.all) > 1) {
     lx0 <- sort(xy$x[leaf.idx.all])
@@ -367,11 +249,6 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
 
   leaf.cex <- rep(cex, nrow(frame))
   if (leaf.detail == "compact" && length(leaf.idx.all)) {
-    # Staggering alternates by X-ORDER across ALL leaves, so a leaf's rival for
-    # space is whichever leaf is two positions away horizontally -- NOT the
-    # nearest leaf at the same depth. In an unbalanced tree those are different
-    # leaves, which is why grouping by depth left the crowded clusters
-    # overlapping.
     o  <- order(xy$x[leaf.idx.all])
     xs <- xy$x[leaf.idx.all][o]
     n  <- length(xs)
@@ -382,15 +259,13 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
       m <- min(cand)
       if (is.finite(m)) m * in.per.x else diff(xlim) * in.per.x
     }, numeric(1))
-    leaf.cex[leaf.idx.all[o]] <- pmin(cex, pmax(0.50, 0.92 * g / (5.6 * char.in.1)))
+    leaf.cex[leaf.idx.all[o]] <- pmin(cex, pmax(0.45, 0.92 * g / (8.5 * char.in.1)))
   }
 
-  # Vertical room beneath the deepest leaves. "full" is rotated, so its block
-  # is ~9.6 characters TALL; "compact" is horizontal on two staggered rows, so
-  # it needs only a few line heights.
+
   block.in <- switch(leaf.detail,
     full    = 9.6 * 0.60 * par("ps") * cex / 72,
-    compact = (1.4 + 1.35 * stagger.rows) * 1.28 * par("ps") * cex / 72,
+    compact = (2.6 + 1.35 * (stagger.rows + 2)) * 1.28 * par("ps") * cex / 72,
     none    = 0)
   base.rng <- diff(range(xy$y)); top <- 0.10 * base.rng
   pady <- block.in * (base.rng + top) / max(pin[2] - block.in, 0.15 * pin[2])
@@ -415,13 +290,7 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
     }
   }
 
-  # ---- REVISION R34: keep a register of what has been drawn ---------------
-  # Branch labels are placed LAST and checked against everything already on the
-  # page. Where one would land on a node name or a leaf value it is nudged
-  # outward along the branch normal until it is clear, and a thin leader is
-  # drawn back to the branch so the association survives the move. This is what
-  # was needed for the handful of race labels in the dense middle of the full
-  # tree; the rest are unaffected.
+  # ---- keep a register of what has been drawn ---------------
   placed <- list()
   box.of <- function(x, y, txt, cx, adj) {
     w <- max(strwidth(strsplit(txt, "\n")[[1]], cex = cx))
@@ -429,9 +298,6 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
     c(x - adj[1] * w, x + (1 - adj[1]) * w,
       y - adj[2] * h, y + (1 - adj[2]) * h)
   }
-  # Boxes are padded before testing: two labels that merely abut still read as
-  # collided on the page, and an untested "just touching" case is exactly what
-  # left `White` sitting against `race`.
   hits <- function(b, pad.x = 0, pad.y = 0) {
     b <- b + c(-pad.x, pad.x, -pad.y, pad.y)
     for (q in placed)
@@ -441,17 +307,11 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
 
   # ---- internal nodes: variable name + the level sets on each branch ----
   for (i in which(!is.leaf)) {
-    # R31: variable names sit higher above the node (0.075 -> 0.155 of y.gap)
-    # so they clear the branch labels of the level above and read as belonging
-    # to the node rather than to the branch.
     nl <- var.name(frame$var[i]); ny <- xy$y[i] + 0.155 * y.gap
     text(xy$x[i], ny, nl, cex = node.cex[i], font = 2, adj = c(0.5, 0),
          col = col.of(i))
     placed[[length(placed) + 1]] <- box.of(xy$x[i], ny, nl, node.cex[i], c(0.5, 0))
-    # R31: for a BINARY predictor the branch label is just "0", which is
-    # guessable from the convention and was contributing about fifteen pieces
-    # of blue clutter to the dense middle of the full tree. Only multi-level
-    # splits get a printed level set; the convention goes in the caption.
+    # for a BINARY predictor the branch label is just "0"
     v.lev <- attr(fit, "xlevels")[[as.character(frame$var[i])]]
     if (!is.null(v.lev) && length(v.lev) <= 2) next
 
@@ -459,21 +319,13 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
 
   # ---- leaves: modal category, posterior P(LBW), births, classes -------
   # "N" is BIRTHS (sum of the node's category counts); "cls" is the number
-  # of predictor classes routed here. rpart's frame$n is the latter --
-  # printing it as "n" was the misleading part (R15).
-  #
-  # every leaf label is rotated, and each keeps the dotted grey leader
-  # line down from its node -- with rotated text the label sits well below
-  # the leaf, so the leader is what ties the two together for the reader.
+  # of predictor classes routed here. rpart's frame$n is the latter
+  # 
   leaf.i  <- which(is.leaf)
   ord     <- order(xy$x[leaf.i])
   lead.top <- 0.06 * y.gap
   lead.bot <- 0.22 * y.gap
-  # REVISION R30: the staggered rows must be separated by a TEXT height, not a
-  # fraction of y.gap. y.gap is (y range)/depth, so on a depth-8 tree the old
-  # 0.26*y.gap offset was well under one line and the two rows still collided
-  # diagonally. Converting a line height into user-y units makes the separation
-  # correct at any depth.
+  # the staggered rows must be separated by a TEXT height
   line.y <- 1.30 * par("ps") * cex / 72 * diff(par("usr")[3:4]) / par("pin")[2]
   for (j in seq_along(leaf.i)) {
     i    <- leaf.i[ord[j]]
@@ -484,15 +336,20 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
     txt  <- switch(leaf.detail,
       full    = sprintf("k%d\nLBW=%.3f\nN=%s\ncls=%d", which.max(cnt), sum(post[lbw.cols]),
                         format(round(births[i]), big.mark = ","), frame$n[i]),
-      compact = sprintf("%.3f", sum(post[lbw.cols])),
+      compact = sprintf("%.3f\n(n=%s)", sum(post[lbw.cols]),
+                        format(round(births[i]), big.mark = ",")),
       none    = "")
 
     if (leaf.detail != "none")
     lead.col <- if (hot) highlight.col else if (dim.on) "#DDE1E6" else "#9CA3AF"
     if (leaf.detail == "compact") {
-      # Horizontal, alternating between two rows so neighbouring numbers never
-      # collide; the dotted leader ties each number back to its leaf.
-      drop <- 0.10 * y.gap + ((j - 1) %% stagger.rows) * 1.35 * line.y
+      base.drop <- 0.10 * y.gap + ((j - 1) %% stagger.rows) * 1.35 * line.y
+      drop <- base.drop
+      for (extra in 0:4) {
+        drop <- base.drop + extra * 1.35 * line.y
+        if (!hits(box.of(xy$x[i], xy$y[i] - drop, txt, leaf.cex[i], c(0.5, 1)),
+                  0.20 * strwidth("M", cex = leaf.cex[i]), 0.10 * line.y)) break
+      }
       segments(xy$x[i], xy$y[i] - lead.top, xy$x[i], xy$y[i] - drop,
                col = lead.col, lty = 3, lwd = if (hot) 1.2 else 0.7)
       text(xy$x[i], xy$y[i] - drop, txt,
@@ -511,7 +368,7 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
              bg = highlight.col, col = highlight.col)
   }
 
-  # ---- branch labels, placed last and de-collided (REVISION R34) ---------
+  # ---- branch labels, placed last and de-collided ------------------------
   for (i in which(!is.leaf)) {
     v.lev <- attr(fit, "xlevels")[[as.character(frame$var[i])]]
     if (!is.null(v.lev) && length(v.lev) <= 2) next   # binary: convention covers it
@@ -535,7 +392,7 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
       padx <- 0.30 * strwidth("M", cex = cex)
       pady <- 0.18 * line.y
       # Start at step 1, never 0: a label anchored exactly on the branch has the
-      # line drawn through it (which is what struck through "Black,NHOPI").
+      # line drawn through it
       fx <- bx; fy <- by; moved <- 1
       for (step in 1:6) {
         fx <- bx + nx * step * 0.55 * strwidth("M", cex = cex)
@@ -551,17 +408,12 @@ draw.dm.tree <- function(fit, title = NULL, subtitle = NULL,
       placed[[length(placed) + 1]] <- box.of(fx, fy, lab.i, cex * 0.95, adj.i)
     }
   }
-
-  # Title size is deliberately NOT tied to `cex`: cex tracks how crowded
-  # the leaves are, and a dense tree would otherwise get a tiny heading.
   if (!is.null(title))    title(main = title, cex.main = title.cex, font.main = 2, line = 2.1)
   if (!is.null(subtitle)) mtext(subtitle, side = 3, line = 0.5, cex = subtitle.cex, col = "#4B5563")
   invisible(xy)
 }
 
-# PDF wrapper. Canvas grows with the tree, and `pointsize` grows with it:
-# LaTeX scales the figure to \textwidth, so legibility on the page is set
-# by the ratio of type to canvas, not the absolute canvas size.
+# PDF wrapper. Canvas grows with the tree, and `pointsize` grows with it too, so the type reads larger on the page than it would if the same tree were drawn on a fixed-size canvas with a fixed pointsize. 
 plot.dm.tree <- function(fit, file, title, subtitle = NULL,
                          lbw.cols = 1:10, alphavec,
                          cex = NULL, width = NULL, height = NULL, ...) {
@@ -573,10 +425,6 @@ plot.dm.tree <- function(fit, file, title, subtitle = NULL,
     return(invisible(NULL))
   }
   depth.max <- max(floor(log2(as.numeric(rownames(frame)))))
-  # tighter than before (1.15 in/leaf, was 1.5) so the same content
-  # occupies a smaller canvas -- which, with pointsize held proportional,
-  # is what makes the type read larger once the figure is scaled to the
-  # text width of the thesis page.
   if (is.null(width))  width  <- max(11, min(34, 1.15 * n.leaves + 4))
   if (is.null(height)) height <- max(7.5, 1.75 * (depth.max + 1) + 2.6)
   base.pt <- 13.5 * width / 11

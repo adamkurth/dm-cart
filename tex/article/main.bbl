@@ -1,95 +1,119 @@
-\begin{thebibliography}{13}
-\providecommand{\natexlab}[1]{#1}
-\providecommand{\url}[1]{\texttt{#1}}
-\expandafter\ifx\csname urlstyle\endcsname\relax
-  \providecommand{\doi}[1]{doi: #1}\else
-  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+\begin{thebibliography}{10}
 
-\bibitem[Breiman et~al.(1984)Breiman, Friedman, Olshen, and Stone]{breiman1984}
-Leo Breiman, Jerome Friedman, R.~A. Olshen, and C.~J. Stone.
-\newblock \emph{Classification and Regression Trees}.
-\newblock Chapman and Hall/CRC, New York, 1 edition, 1984.
-\newblock \doi{10.1201/9781315139470}.
-\newblock URL \url{https://doi.org/10.1201/9781315139470}.
+\bibitem{lbw_def}
+Cutland CL, Lackritz EM, Mallett-Moore T, Bardaj{\'i} A, Chandrasekaran R, Lahariya C, et~al.
+\newblock Low birth weight: case definition \& guidelines for data collection, analysis, and presentation of maternal immunization safety data.
+\newblock Vaccine. 2017;35(48 Pt A):6492-500.
+\newblock Brighton Collaboration Low Birth Weight Working Group.
+\newblock Available from: \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC5710991/}.
 
-\bibitem[{Cutland, C. L., Lackritz, E. M., Mallett-Moore, T., Bardají, A., Chandrasekaran, R., Lahariya, C., Nisar, M. I., Tapia, M. D., Pathirana, J., Kochhar, S., Muñoz, F. M., and Brighton Collaboration Low Birth Weight Working Group}(2017)]{lbw_def}
-{Cutland, C. L., Lackritz, E. M., Mallett-Moore, T., Bardají, A., Chandrasekaran, R., Lahariya, C., Nisar, M. I., Tapia, M. D., Pathirana, J., Kochhar, S., Muñoz, F. M., and Brighton Collaboration Low Birth Weight Working Group}.
-\newblock 2017.
-\newblock \doi{https://doi.org/10.1016/j.vaccine.2017.01.049}.
-\newblock URL \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC5710991/}.
-\newblock Accessed: 2025-04-25.
+\bibitem{kramer1987}
+Kramer MS.
+\newblock Determinants of low birth weight: methodological assessment and meta-analysis.
+\newblock Bull World Health Organ. 1987;66(5):663-737.
+\newblock Available from: \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC2491072/}.
 
-\bibitem[Dunson et~al.(2008)Dunson, Herring, and Siega-Riz]{dunson2008}
-D.~B. Dunson, A.~Herring, and A.~M. Siega-Riz.
+\bibitem{finch2003}
+Finch BK.
+\newblock Socioeconomic gradients and low birth weight: empirical and policy considerations.
+\newblock Health Serv Res. 2003;38(6~(Suppl.)):1819-42.
+\newblock Available from: \url{https://doi.org/10.1111/j.1475-6773.2003.00204.x}.
+
+\bibitem{KITSANTAS2006275}
+Kitsantas P, Hollander M, Li L.
+\newblock Using classification trees to assess low birth weight outcomes.
+\newblock Artif Intell Med. 2006;38(3):275-89.
+\newblock Available from: \url{https://www.sciencedirect.com/science/article/pii/S0933365706000583}.
+
+\bibitem{dunson2008}
+Dunson DB, Herring A, Siega-Riz AM.
 \newblock Bayesian inference on changes in response densities over predictor clusters.
-\newblock \emph{Journal of the American Statistical Association}, 103\penalty0 (484):\penalty0 1508--1517, 2008.
-\newblock \doi{10.1198/016214508000001039}.
-\newblock URL \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC7059981/}.
+\newblock J Am Stat Assoc. 2008;103(484):1508-17.
+\newblock Available from: \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC7059981/}.
 
-\bibitem[Finch(2003)]{finch2003}
-B.~K. Finch.
-\newblock Socioeconomic gradients and low birth weight: Empirical and policy considerations.
-\newblock \emph{Health Services Research}, 38\penalty0 (6~(Suppl.)):\penalty0 1819--1842, 2003.
-\newblock URL \url{https://doi.org/10.1111/j.1475-6773.2003.00204.x}.
+\bibitem{rathjens2023}
+Rathjens J, Kolbe A, H\"{o}lzer J, Czado C.
+\newblock Bivariate analysis of birth weight and gestational age by Bayesian distributional regression with copulas.
+\newblock Stat Biosci. 2024;16(2):290-317.
+\newblock Available from: \url{https://link.springer.com/article/10.1007/s12561-023-09396-4}.
 
-\bibitem[Goisis et~al.(2017)Goisis, Remes, Barclay, Martikainen, and Myrskylä]{age_differences_lbw}
-A.~Goisis, H.~Remes, K.~Barclay, P.~Martikainen, and M.~Myrskylä.
-\newblock Advanced maternal age and the risk of low birth weight and preterm delivery: A within-family analysis using finnish population registers.
-\newblock \emph{American Journal of Epidemiology}, 2017.
-\newblock URL \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC5860004}.
+\bibitem{age_differences_lbw}
+Goisis A, Remes H, Barclay K, Martikainen P, Myrskyl\textsuperscript{a} M.
+\newblock Advanced maternal age and the risk of low birth weight and preterm delivery: a within-family analysis using Finnish population registers.
+\newblock Am J Epidemiol. 2017;186(11):1219-26.
 \newblock Accessed 2025-03-27.
+\newblock Available from: \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC5860004}.
 
-\bibitem[Jain(2024)]{jain2024}
-Palak Jain.
-\newblock \emph{Algorithms for Bayesian Conditional Density Estimation on a Large Dataset}.
-\newblock PhD thesis, Arizona State University, August 2024.
+\bibitem{jain2024}
+Jain P.
+\newblock Algorithms for Bayesian Conditional Density Estimation on a Large Dataset [dissertation].
+\newblock Tempe, AZ: Arizona State University; 2024.
 \newblock Advised by P. R. Hahn, J. He, S. Zhou, M.-H. Kao, and S. Lan.
 
-\bibitem[Kitsantas et~al.(2006)Kitsantas, Hollander, and Li]{KITSANTAS2006275}
-P.~Kitsantas, M.~Hollander, and L.~Li.
-\newblock Using classification trees to assess low birth weight outcomes.
-\newblock \emph{Artificial Intelligence in Medicine}, 38\penalty0 (3):\penalty0 275--289, 2006.
-\newblock \doi{10.1016/j.artmed.2006.03.008}.
-\newblock URL \url{https://www.sciencedirect.com/science/article/pii/S0933365706000583}.
+\bibitem{standford_med_lbw}
+{Stanford Medicine}. Low birth weight; 2025.
+\newblock Accessed 2025-02-23.
+\newblock Available from: \url{https://www.stanfordchildrens.org/en/topic/default?id=low-birth-weight-90-P02382}.
 
-\bibitem[Kramer(1987)]{kramer1987}
-M.~S. Kramer.
-\newblock Determinants of low birth weight: Methodological assessment and meta-analysis.
-\newblock \emph{Bulletin of the World Health Organization}, 66\penalty0 (5):\penalty0 663--737, 1987.
-\newblock URL \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC2491072/}.
-
-\bibitem[Lu et~al.(2020)Lu, Zhang, Zheng, Sun, Chen, and Deng]{lu2020combined}
-C.~Lu, W.~Zhang, X.~Zheng, J.~Sun, L.~Chen, and Q.~Deng.
+\bibitem{lu2020combined}
+Lu C, Zhang W, Zheng X, Sun J, Chen L, Deng Q.
 \newblock Combined effects of ambient air pollution and home environmental factors on low birth weight.
-\newblock \emph{Chemosphere}, 240:\penalty0 124836, 2020.
-\newblock \doi{10.1016/j.chemosphere.2019.124836}.
-\newblock URL \url{https://www.sciencedirect.com/science/article/pii/S0045653519320752}.
+\newblock Chemosphere. 2020;240:124836.
+\newblock Available from: \url{https://www.sciencedirect.com/science/article/pii/S0045653519320752}.
 
-\bibitem[{March of Dimes}(2024)]{marchofdimes2024}
-{March of Dimes}.
-\newblock Low birthweight in the united states (2021–2023 average), 2024.
-\newblock URL \url{https://www.marchofdimes.org/peristats/data?reg=99&top=4&stop=42&lev=1&slev=1&obj=3}.
+\bibitem{marchofdimes2024}
+{March of Dimes}. Low Birthweight in the United States (2021--2023 Average); 2024.
 \newblock Accessed 2025-02-23.
+\newblock Available from: \url{https://www.marchofdimes.org/peristats/data?reg=99&top=4&stop=42&lev=1&slev=1&obj=3}.
 
-\bibitem[Rathjens et~al.(2024)Rathjens, Kolbe, Hölzer, and Czado]{rathjens2023}
-J.~Rathjens, A.~Kolbe, J.~Hölzer, and C.~Czado.
-\newblock Bivariate analysis of birth weight and gestational age by bayesian distributional regression with copulas.
-\newblock \emph{Statistical Biosciences}, 16\penalty0 (2):\penalty0 290--317, 2024.
-\newblock \doi{10.1007/s12561-023-09396-4}.
-\newblock URL \url{https://link.springer.com/article/10.1007/s12561-023-09396-4}.
+\bibitem{kff2026}
+{KFF}. {U.S.} {Maternal} \& {Infant} {Health} {Data}; 2026.
+\newblock Part of the State Profiles for Women's Health interactive series. Accessed: August 20, 2026.
+\newblock \url{https://www.kff.org/interactive/womens-health-profiles/united-states/maternal-infant-health/1222818539}.
 
-\bibitem[{Stanford Medicine}(2025)]{standford_med_lbw}
-{Stanford Medicine}.
-\newblock Low birth weight.
-\newblock 2025.
-\newblock URL \url{https://www.stanfordchildrens.org/en/topic/default?id=low-birth-weight-90-P02382}.
-\newblock Accessed 2025-02-23.
+\bibitem{breiman1984}
+Breiman L, Friedman J, Olshen RA, Stone CJ.
+\newblock Classification and Regression Trees.
+\newblock 1st ed. New York: Chapman and Hall/CRC; 1984.
+\newblock Available from: \url{https://doi.org/10.1201/9781315139470}.
 
-\bibitem[Therneau et~al.(2025)Therneau, Atkinson, and Ripley]{rpart_docs}
-Terry Therneau, Beth Atkinson, and Brian Ripley.
-\newblock rpart: Recursive partitioning and regression trees.
-\newblock 2025.
-\newblock URL \url{https://cran.r-project.org/web/packages/rpart/rpart.pdf}.
+\bibitem{rpart_docs}
+Therneau T, Atkinson B, Ripley B. rpart: Recursive Partitioning and Regression Trees; 2025.
 \newblock Package manual; accessed 2025-03-28.
+\newblock Available from: \url{https://cran.r-project.org/web/packages/rpart/rpart.pdf}.
+
+\bibitem{kff_maternal_infant_health}
+{Kaiser Family Foundation}. Racial Disparities in Maternal and Infant Health\@: Current Status and Efforts to Address Them; 2025.
+\newblock Accessed 2025-03-03.
+\newblock Available from: \url{https://www.kff.org/racial-equity-and-health-policy/issue-brief/racial-disparities-in-maternal-and-infant-health-current-status-and-efforts-to-address-them}.
+
+\bibitem{pmc1751798}
+Colen CG, Geronimus AT, Bound J, James SA.
+\newblock Maternal upward socioeconomic mobility and Black--White disparities in infant birthweight.
+\newblock Am J Public Health. 2006;96(11):2032-9.
+\newblock Available from: \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC1751798}.
+
+\bibitem{kurth-thesis2025}
+Kurth A.
+\newblock Investigating Determinants of Birth Weight Using Bayesian Tree-Based Nonparametric Modeling [master's thesis].
+\newblock Tempe, AZ: Arizona State University; 2025.
+\newblock Available from: \url{https://hdl.handle.net/2286/R.2.N.201810}.
+
+\bibitem{edu_lbw}
+Martinson ML, Choi KH.
+\newblock Low birth weight and childhood health: the role of maternal education.
+\newblock Ann Epidemiol. 2019;39:39-45.e2.
+\newblock Available from: \url{https://www.sciencedirect.com/science/article/pii/S1047279718310950}.
+
+\bibitem{smoking_lbw}
+Delcroix-Gomez C, Delcroix MH, Jamee A, Gauthier T, Marquet P, Aubard Y.
+\newblock Fetal growth restriction, low birth weight and preterm birth: effects of active or passive smoking evaluated by maternal expired CO at delivery.
+\newblock Tob Induc Dis. 2022;20:1-15.
+
+\bibitem{vanvliet2009decreasing}
+Van~Vliet G, Liu S, Kramer MS.
+\newblock Decreasing sex difference in birth weight.
+\newblock Epidemiology. 2009;20(4):622.
+\newblock Available from: \url{https://doi.org/10.1097/EDE.0b013e3181a82806}.
 
 \end{thebibliography}

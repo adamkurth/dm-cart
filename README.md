@@ -376,6 +376,20 @@ question entirely.
 }
 ```
 
+The archived code release that produced the published results:
+
+```bibtex
+@software{kurth-dmcart-code,
+  author    = {Kurth, Adam M.},
+  title     = {adamkurth/dm-cart: v1.0.0},
+  year      = {2026},
+  publisher = {Zenodo},
+  version   = {v1.0.0},
+  doi       = {10.5281/zenodo.22089989},
+  url       = {https://doi.org/10.5281/zenodo.22089989}
+}
+```
+
 The earlier thesis:
 
 ```bibtex
